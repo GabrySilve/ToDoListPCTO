@@ -236,7 +236,7 @@ function caricaSottoTask(taskId, keepOpenInputValue = '') {
               <span>${st.titolo}</span>
             </span>
             <span class="d-flex gap-2">
-              <button class="btn btn-light rounded-circle btn-sm" title="Modifica sottotask" onclick="modificaSottoTask(${st.id}, ${taskId})">
+              <button class="btn btn-light rounded-circle btn-sm" title="Modifica sottotask" onclick="modificaSottoTask(${st.id}, ${taskId}, this)">
                 <i class="bi bi-pencil"></i>
               </button>
               <button class="btn btn-light rounded-circle btn-sm" title="Elimina sottotask" onclick="eliminaSottoTask(${st.id}, ${taskId})">
@@ -307,23 +307,22 @@ function aggiungiSottoTask(taskId, titolo) {
     .catch(err => alert(err.message));
 }
 
-function modificaSottoTask(sottoTaskId, taskId) {
-  // Carica i dati della sottotask prima di aprire il modal
-  fetch(`https://localhost:7000/api/SottoTask/${sottoTaskId}`)
-    .then(res => res.json())
-    .then(sottoTask => {
-      // Imposta le variabili globali
-      sottoTaskDaModificare = sottoTaskId;
-      taskIdCorrente = taskId;
-      
-      // Popola il campo di input con il titolo corrente
-      document.getElementById('titoloSottoTaskModifica').value = sottoTask.titolo;
-      
-      // Apri il modal
-      const modal = new bootstrap.Modal(document.getElementById('modificaSottoTaskModal'));
-      modal.show();
-    })
-    .catch(err => alert('Errore nel caricamento della sottotask: ' + err.message));
+function modificaSottoTask(sottoTaskId, taskId, buttonElement) {
+  // Imposta le variabili globali
+  sottoTaskDaModificare = sottoTaskId;
+  taskIdCorrente = taskId;
+  
+  // Trova il titolo della sotto-task dal DOM
+  const liElement = buttonElement.closest('li');
+  const spanElement = liElement.querySelector('span span');
+  const titoloCorrente = spanElement ? spanElement.textContent : '';
+  
+  // Popola il campo di input con il titolo corrente
+  document.getElementById('titoloSottoTaskModifica').value = titoloCorrente;
+  
+  // Apri il modal
+  const modal = new bootstrap.Modal(document.getElementById('modificaSottoTaskModal'));
+  modal.show();
 }
 
 function eliminaSottoTask(sottoTaskId, taskId) {

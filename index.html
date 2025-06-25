@@ -62,6 +62,69 @@
         </div>
     </nav>
 
+    <!-- ===================================== -->
+    <!-- MODAL DI AGGIUNTA -->
+    <!-- ===================================== -->
+    
+    <!-- Modal per aggiungere task -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="taskForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Aggiungi Task</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="titolo" class="form-label">Titolo</label>
+                            <input type="text" class="form-control" id="titolo" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="descrizione" class="form-label">Descrizione</label>
+                            <textarea class="form-control" id="descrizione" rows="3" required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="scadenza" class="form-label">Data di scadenza</label>
+                            <input type="date" class="form-control" id="scadenza" required min="">
+                        </div>
+                        <div class="col">
+                            <label for="scadenzaOra" class="form-label">Ora</label>
+                            <input type="time" class="form-control" id="scadenzaOra" required>
+                        </div>
+
+                        <div style="padding-top: 20px;">
+                            <div class="mb-3" style="display: flex; justify-content: center; align-items: center;">
+                                <div class="dropdown d-flex align-items-center gap-2">
+                                    <select id="categoria"
+                                        class="form-select bg-primary w-100 text-white border-primary custom-arrow-white"
+                                        required>
+                                        <option selected>Seleziona una categoria</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3" style="display: flex; justify-content: center; align-items: center;">
+                                <div class="dropdown d-flex align-items-center gap-2">
+                                    <select id="utente"
+                                        class="form-select bg-primary w-100 text-white border-primary custom-arrow-white1"
+                                        required>
+                                        <option selected>Seleziona un utente</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="display: flex;">
+                        <button type="button" class="btn btn-secondary me-auto" data-bs-dismiss="modal">Chiudi</button>
+                        <button type="submit" class="btn btn-primary" id="btnAggiungi">Aggiungi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal per aggiungere categoria -->
     <div class="modal fade" id="aggiungiCategoriaModal" tabindex="-1" aria-labelledby="aggiungiCategoriaLabel"
         aria-hidden="true">
@@ -105,7 +168,11 @@
         </div>
     </div>
 
-    <!--Modal scegli utente-->
+    <!-- ===================================== -->
+    <!-- MODAL DI SELEZIONE/VISUALIZZAZIONE -->
+    <!-- ===================================== -->
+
+    <!-- Modal per scegliere utente -->
     <div class="modal fade" id="scegliUtenteModal" tabindex="-1" aria-labelledby="scegliUtenteLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -125,47 +192,17 @@
                         data-bs-target="#aggiungiUtenteModal">
                         <i class="bi bi-person-plus-fill" style="font-size: 2rem; font-weight: bold;"></i>
                     </button>
-                    <!--Elimina un utente-->
-                    <!-- Bottone elimina utente (simbolo persona con meno) -->
                     <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
                         style="width: 48px; height: 48px; padding: 0;" onclick="apriModalEliminaUtente()">
                         <i class="bi bi-person-dash-fill" style="font-size: 1.5rem;"></i>
                     </button>
-
-
-                    <!-- da inserire il modal -->
-
                     <button type="button" class="btn btn-primary" id="confermaUtenteBtn">Visualizza task</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal per eliminare utente -->
-    <div class="modal fade" id="eliminaUtenteModal" tabindex="-1" aria-labelledby="eliminaUtenteLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="eliminaUtenteLabel">Elimina utente</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
-                </div>
-                <div class="modal-body">
-                    <select id="eliminaUtenteDropdown" class="form-select">
-                        <option value="">Seleziona utente da eliminare...</option>
-                    </select>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
-                    <button type="button" class="btn btn-danger" id="confermaEliminaUtenteBtn">Elimina</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-    <!--Modal scegli categorie-->
+    <!-- Modal per scegliere categoria -->
     <div class="modal fade" id="scegliCategoriaModal" tabindex="-1" aria-labelledby="scegliCategoriaLabel"
         aria-hidden="true">
         <div class="modal-dialog">
@@ -185,13 +222,77 @@
                         data-bs-target="#aggiungiCategoriaModal">
                         <i class="bi bi-folder-plus" style="font-size: 2rem; font-weight: bold;"></i>
                     </button>
-                    <!-- Pulsante elimina categoria -->
                     <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
                         style="width: 48px; height: 48px; padding: 0;" onclick="apriModalEliminaCategoria()">
                         <i class="bi bi-folder-minus" style="font-size: 2rem; font-weight: bold;"></i>
                     </button>
-
                     <button type="button" class="btn btn-primary" id="confermaCategoriaBtn">Visualizza task</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal per visualizzare descrizioni task -->
+    <div class="modal fade" id="descrizioneModal" tabindex="-1" aria-labelledby="descrizioneModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="descrizioneModalLabel">Descrizione Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body" id="modalDescrizioneTesto">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================== -->
+    <!-- MODAL DI MODIFICA -->
+    <!-- ===================================== -->
+
+    <!-- Modal per modificare sotto-task -->
+    <div class="modal fade" id="modificaSottoTaskModal" tabindex="-1" aria-labelledby="modificaSottoTaskModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modificaSottoTaskModalLabel">Modifica Sotto-task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="titoloSottoTaskModifica" class="form-label">Titolo sotto-task</label>
+                        <input type="text" class="form-control" id="titoloSottoTaskModifica" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" id="btnConfermaSalvaModificaSottoTask">Salva modifiche</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================== -->
+    <!-- MODAL DI ELIMINAZIONE -->
+    <!-- ===================================== -->
+
+    <!-- Modal per eliminare task -->
+    <div class="modal fade" id="confermaEliminaModal" tabindex="-1" aria-labelledby="confermaEliminaModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confermaEliminaModalLabel">Conferma Eliminazione Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    Sei sicuro di voler eliminare questa task?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-danger" id="btnConfermaElimina">Elimina</button>
                 </div>
             </div>
         </div>
@@ -219,143 +320,23 @@
         </div>
     </div>
 
-
-    <!--modal aggiungi-->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <!-- Modal per eliminare utente -->
+    <div class="modal fade" id="eliminaUtenteModal" tabindex="-1" aria-labelledby="eliminaUtenteLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form id="taskForm">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Inserisci Dati</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="titolo" class="form-label">Titolo</label>
-                            <input type="text" class="form-control" id="titolo" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="descrizione" class="form-label">Descrizione</label>
-                            <textarea class="form-control" id="descrizione" rows="3" required></textarea>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="scadenza" class="form-label">Data di scadenza</label>
-                            <input type="date" class="form-control" id="scadenza" required min="">
-                        </div>
-                        <div class="col">
-                            <label for="scadenzaOra" class="form-label">Ora</label>
-                            <input type="time" class="form-control" id="scadenzaOra" required>
-                        </div>
-
-                        <div style="padding-top: 20px;">
-                            <div class="mb-3" style="display: flex; justify-content: center; align-items: center;">
-                                <div class="dropdown d-flex align-items-center gap-2">
-                                    <select id="categoria"
-                                        class="form-select bg-primary w-100 text-white border-primary custom-arrow-white"
-                                        required>
-                                        <option selected>Seleziona una categoria</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="mb-3" style="display: flex; justify-content: center; align-items: center;">
-                                <div class="dropdown d-flex align-items-center gap-2">
-
-                                    <select id="utente"
-                                        class="form-select bg-primary w-100 text-white border-primary custom-arrow-white1"
-                                        required>
-                                        <option selected>Seleziona un utente</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer" style="display: flex;">
-                        <button type="button" class="btn btn-primary me-auto" data-bs-dismiss="modal">Chiudi</button>
-                        <button type="submit" class="btn btn-primary" id="btnAggiungi">Aggiungi</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div class="container-fluid mt-4" id="lista-box">
-    </div>
-
-    <!-- Modal per visualizzare le descrizioni -->
-    <div class="modal fade" id="descrizioneModal" tabindex="-1" aria-labelledby="descrizioneModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="descrizioneModalLabel">Descrizione Task</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
-                </div>
-                <div class="modal-body" id="modalDescrizioneTesto">
-
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal per l'eliminazione -->
-    <div class="modal fade" id="confermaEliminaModal" tabindex="-1" aria-labelledby="confermaEliminaModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="confermaEliminaModalLabel">Conferma Eliminazione</h5>
+                    <h5 class="modal-title" id="eliminaUtenteLabel">Elimina utente</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
                 </div>
                 <div class="modal-body">
-                    Sei sicuro di voler eliminare questa task?
+                    <select id="eliminaUtenteDropdown" class="form-select">
+                        <option value="">Seleziona utente da eliminare...</option>
+                    </select>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Annulla</button>
-                    <button type="button" class="btn btn-primary" id="btnConfermaElimina">Elimina</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal per la conferma della check -->
-    <div class="modal fade" id="confermaCompletaModal" tabindex="-1" aria-labelledby="confermaCompletaModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="confermaCompletaModalLabel">Conferma Completamento</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
-                </div>
-                <div class="modal-body">
-                    Sei sicuro di voler segnare questa task come completata?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Annulla</button>
-                    <button type="button" class="btn btn-primary" id="btnConfermaCompleta">Sì, completa</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Modal per modificare sotto-task -->
-    <div class="modal fade" id="modificaSottoTaskModal" tabindex="-1" aria-labelledby="modificaSottoTaskModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modificaSottoTaskModalLabel">Modifica Sotto-task</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="titoloSottoTaskModifica" class="form-label">Titolo sotto-task</label>
-                        <input type="text" class="form-control" id="titoloSottoTaskModifica" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Annulla</button>
-                    <button type="button" class="btn btn-primary" id="btnConfermaElimina">Elimina</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-danger" id="confermaEliminaUtenteBtn">Elimina</button>
                 </div>
             </div>
         </div>
@@ -374,14 +355,39 @@
                     Sei sicuro di voler eliminare questa sotto-task?
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Annulla</button>
-                    <button type="button" class="btn btn-primary" id="btnConfermaElimina">Elimina</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-danger" id="btnConfermaEliminaSottoTask">Elimina</button>
                 </div>
             </div>
         </div>
     </div>
-    
-    <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
+
+    <!-- ===================================== -->
+    <!-- MODAL DI CONFERMA -->
+    <!-- ===================================== -->
+
+    <!-- Modal per confermare completamento task -->
+    <div class="modal fade" id="confermaCompletaModal" tabindex="-1" aria-labelledby="confermaCompletaModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confermaCompletaModalLabel">Conferma Completamento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    Sei sicuro di voler segnare questa task come completata?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-success" id="btnConfermaCompleta">Sì, completa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid mt-4" id="lista-box">
+    </div>
         style="width: 48px; height: 48px; padding: 0; position: fixed; bottom: 20px; right: 20px; z-index: 1050; border: 2px solid #0d6efd;"
         onclick="location.href='info.html'">
         <i class="bi bi-info-lg" style="font-size: 2rem; font-weight: bold; color: #0d6efd;"></i>

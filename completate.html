@@ -148,6 +148,49 @@
         </div>
     </div>
 
+    <!-- Modal per modificare sotto-task -->
+    <div class="modal fade" id="modificaSottoTaskModal" tabindex="-1" aria-labelledby="modificaSottoTaskModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modificaSottoTaskModalLabel">Modifica Sotto-task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="titoloSottoTaskModifica" class="form-label">Titolo sotto-task</label>
+                        <input type="text" class="form-control" id="titoloSottoTaskModifica" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" id="btnConfermaElimina">Elimina</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal per eliminare sotto-task -->
+    <div class="modal fade" id="eliminaSottoTaskModal" tabindex="-1" aria-labelledby="eliminaSottoTaskModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="eliminaSottoTaskModalLabel">Conferma Eliminazione Sotto-task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    Sei sicuro di voler eliminare questa sotto-task?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" id="btnConfermaElimina">Elimina</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
         style="width: 48px; height: 48px; padding: 0; position: fixed; bottom: 20px; right: 20px; z-index: 1050; border: 2px solid #0d6efd;"

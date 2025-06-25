@@ -5,6 +5,9 @@ let taskIdDaCompletare = null;
 let checkboxDaRipristinare = null;
 let utenteSelezionato = null;
 let categoriaSelezionata = null;
+let sottoTaskDaModificare = null;
+let sottoTaskDaEliminare = null;
+let taskIdCorrente = null;
 
 function caricaCategorieDropdown() {
   fetch('https://localhost:7000/api/Categorie')
@@ -305,40 +308,32 @@ function aggiungiSottoTask(taskId, titolo) {
 }
 
 function modificaSottoTask(sottoTaskId, taskId) {
-  const nuovoTitolo = prompt('Modifica il titolo della sottotask:');
-  if (!nuovoTitolo || nuovoTitolo.trim() === '') return;
-
-  fetch(`https://localhost:7000/api/SottoTask/${sottoTaskId}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      titolo: nuovoTitolo,
-      taskId: taskId
+  // Carica i dati della sottotask prima di aprire il modal
+  fetch(`https://localhost:7000/api/SottoTask/${sottoTaskId}`)
+    .then(res => res.json())
+    .then(sottoTask => {
+      // Imposta le variabili globali
+      sottoTaskDaModificare = sottoTaskId;
+      taskIdCorrente = taskId;
+      
+      // Popola il campo di input con il titolo corrente
+      document.getElementById('titoloSottoTaskModifica').value = sottoTask.titolo;
+      
+      // Apri il modal
+      const modal = new bootstrap.Modal(document.getElementById('modificaSottoTaskModal'));
+      modal.show();
     })
-  })
-    .then(res => {
-      if (!res.ok) throw new Error("Errore nella modifica della sottotask");
-      return res.json();
-    })
-    .then(() => {
-      caricaSottoTask(taskId, ''); // Ricarica e lascia la dropdown aperta
-    })
-    .catch(err => alert(err.message));
+    .catch(err => alert('Errore nel caricamento della sottotask: ' + err.message));
 }
 
 function eliminaSottoTask(sottoTaskId, taskId) {
-  if (!confirm('Sei sicuro di voler eliminare questa sottotask?')) return;
-  fetch(`https://localhost:7000/api/SottoTask/${sottoTaskId}`, {
-    method: 'DELETE'
-  })
-    .then(res => {
-      if (!res.ok) throw new Error("Errore nell'eliminazione della sottotask");
-      return res.json();
-    })
-    .then(() => {
-      caricaSottoTask(taskId, ''); // Ricarica e lascia la dropdown aperta
-    })
-    .catch(err => alert(err.message));
+  // Imposta le variabili globali
+  sottoTaskDaEliminare = sottoTaskId;
+  taskIdCorrente = taskId;
+  
+  // Apri il modal di conferma
+  const modal = new bootstrap.Modal(document.getElementById('eliminaSottoTaskModal'));
+  modal.show();
 }
 
 function caricaTasksPerCategoria(CategoriaId) {
@@ -1495,3 +1490,91 @@ function toggleStatoSottoTask(sottoTaskId, nuovoStato, taskId) {
     })
     .catch(err => alert('Errore nel cambio stato della sottotask: ' + err.message));
 }
+
+// Funzioni per gestire le modal delle sotto-task
+function confermaSalvaModificaSottoTask() {
+  const nuovoTitolo = document.getElementById('titoloSottoTaskModifica').value.trim();
+  
+  if (!nuovoTitolo) {
+    alert('Il titolo non può essere vuoto');
+    return;
+  }
+
+  fetch(`https://localhost:7000/api/SottoTask/${sottoTaskDaModificare}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      titolo: nuovoTitolo,
+      taskId: taskIdCorrente
+    })
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Errore nella modifica della sottotask");
+      return res.json();
+    })
+    .then(() => {
+      // Chiudi il modal e ricarica le sotto-task
+      const modal = bootstrap.Modal.getInstance(document.getElementById('modificaSottoTaskModal'));
+      modal.hide();
+      caricaSottoTask(taskIdCorrente, ''); // Ricarica e lascia la dropdown aperta
+      
+      // Reset delle variabili
+      sottoTaskDaModificare = null;
+      taskIdCorrente = null;
+    })
+    .catch(err => alert('Errore nella modifica della sottotask: ' + err.message));
+}
+
+function confermaEliminaSottoTask() {
+  fetch(`https://localhost:7000/api/SottoTask/${sottoTaskDaEliminare}`, {
+    method: 'DELETE'
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Errore nell'eliminazione della sottotask");
+      return res.json();
+    })
+    .then(() => {
+      // Chiudi il modal e ricarica le sotto-task
+      const modal = bootstrap.Modal.getInstance(document.getElementById('eliminaSottoTaskModal'));
+      modal.hide();
+      caricaSottoTask(taskIdCorrente, ''); // Ricarica e lascia la dropdown aperta
+      
+      // Reset delle variabili
+      sottoTaskDaEliminare = null;
+      taskIdCorrente = null;
+    })
+    .catch(err => alert('Errore nell\'eliminazione della sottotask: ' + err.message));
+}
+
+// Event listeners per le modal delle sotto-task
+document.addEventListener('DOMContentLoaded', () => {
+  // Event listener per la conferma modifica sotto-task
+  const btnConfermaSalvaModifica = document.getElementById('btnConfermaSalvaModificaSottoTask');
+  if (btnConfermaSalvaModifica) {
+    btnConfermaSalvaModifica.addEventListener('click', confermaSalvaModificaSottoTask);
+  }
+
+  // Event listener per la conferma eliminazione sotto-task
+  const btnConfermaEliminaSottoTask = document.getElementById('btnConfermaEliminaSottoTask');
+  if (btnConfermaEliminaSottoTask) {
+    btnConfermaEliminaSottoTask.addEventListener('click', confermaEliminaSottoTask);
+  }
+
+  // Event listener per reset variabili quando si chiudono le modal
+  const modificaSottoTaskModal = document.getElementById('modificaSottoTaskModal');
+  if (modificaSottoTaskModal) {
+    modificaSottoTaskModal.addEventListener('hidden.bs.modal', () => {
+      sottoTaskDaModificare = null;
+      taskIdCorrente = null;
+      document.getElementById('titoloSottoTaskModifica').value = '';
+    });
+  }
+
+  const eliminaSottoTaskModal = document.getElementById('eliminaSottoTaskModal');
+  if (eliminaSottoTaskModal) {
+    eliminaSottoTaskModal.addEventListener('hidden.bs.modal', () => {
+      sottoTaskDaEliminare = null;
+      taskIdCorrente = null;
+    });
+  }
+});

@@ -1,0 +1,49 @@
+✅ 1. Esportare (scaricare) un database da SQL Server
+Hai due opzioni: backup .bak oppure script SQL. Ti consiglio il backup (.bak) perché è più completo.
+
+📦 Metodo consigliato: Backup (.bak)
+🔹 Passaggi:
+Apri SQL Server Management Studio (SSMS)
+Collegati al tuo server.
+
+Trova il tuo database
+Nella finestra Object Explorer, espandi Databases, poi clicca con il tasto destro sul DB che vuoi esportare.
+
+Vai su:
+Tasks → Back Up...
+
+Nella finestra Back Up Database:
+
+Assicurati che il tipo sia Full.
+
+In Destination, togli eventuali voci già presenti e premi Add.
+
+Scegli un percorso (es: C:\Backup\miodatabase.bak) → dai un nome → OK.
+
+Premi OK per avviare il backup.
+Dopo pochi secondi avrai un file .bak da copiare su chiavetta o altro PC.
+
+✅ 2. Importare (caricare) un database da file .bak su un altro PC
+🔹 Passaggi:
+Apri SSMS sul nuovo PC e collegati al server.
+
+Crea una cartella tipo C:\Backup e copia lì il file .bak.
+
+In SSMS → tasto destro su Databases → Restore Database...
+
+Nella finestra:
+
+Seleziona Device
+
+Clicca su ... → Add → scegli il file .bak → OK.
+
+Nella sezione "Select the backup sets to restore", spunta il backup.
+
+(Opzionale) Vai nella scheda Files e controlla dove verrà salvato fisicamente il DB sul disco.
+
+Premi OK per avviare il ripristino.
+
+🛠️ Note importanti
+Il percorso dove metti il file .bak deve avere permessi di lettura per SQL Server. Se hai errori, copia il file in una cartella come C:\Program Files\Microsoft SQL Server\MSSQLXX.MSSQLSERVER\MSSQL\Backup.
+
+Verifica che l’istanza SQL Server abbia il permesso di accedere al file: puoi impostarlo con i permessi di sicurezza di Windows.

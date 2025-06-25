@@ -1,0 +1,3 @@
+BACKUP DATABASE TestDB
+TO DISK = 'C:\Backup\TestDB.bak'
+WITH INIT, FORMAT;

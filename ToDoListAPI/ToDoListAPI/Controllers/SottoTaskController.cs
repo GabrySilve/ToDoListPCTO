@@ -42,6 +42,20 @@ namespace ToDoListAPI.Controllers
             return Ok(new { message = "SottoTask aggiornata." });
         }
 
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id)
+        {
+            var sottoTask = _context.SottoTask
+                .FromSqlRaw("EXEC GetSottoTaskById @p0", id)
+                .AsEnumerable()
+                .FirstOrDefault();
+
+            if (sottoTask == null)
+                return NotFound();
+
+            return Ok(sottoTask);
+        }
+
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {

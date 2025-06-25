@@ -193,14 +193,17 @@ function caricaTasksPerUtente(UtenteId) {
 }
 
 
-function caricaSottoTask(taskId) {
+function caricaSottoTask(taskId, keepOpenInputValue = '') {
   const card = document.querySelector(`.card[data-task-id='${taskId}']`);
   if (!card) return;
 
   const nextElem = card.nextElementSibling;
   if (nextElem && nextElem.classList.contains('sottotask-container')) {
-    nextElem.remove();
-    return;
+    // Se keepOpenInputValue è undefined, chiudi la dropdown (toggle)
+    if (typeof keepOpenInputValue === 'undefined') {
+      nextElem.remove();
+      return;
+    }
   }
 
   document.querySelectorAll('.sottotask-container').forEach(el => el.remove());
@@ -223,8 +226,21 @@ function caricaSottoTask(taskId) {
       } else {
         sottoTasks.forEach(st => {
           const li = document.createElement('li');
-          li.className = 'mb-1 ps-2';
-          li.innerHTML = `<i class="bi bi-dot"></i> ${st.titolo}`;
+          li.className = 'mb-1 ps-2 d-flex align-items-center justify-content-between';
+          li.innerHTML = `
+            <span class="d-flex align-items-center gap-2">
+              <input type="checkbox" class="form-check-input me-2" style="transform: scale(1.4);" ${st.stato ? 'checked' : ''} onchange="toggleStatoSottoTask(${st.id}, this.checked, ${taskId})">
+              <span>${st.titolo}</span>
+            </span>
+            <span class="d-flex gap-2">
+              <button class="btn btn-light rounded-circle btn-sm" title="Modifica sottotask" onclick="modificaSottoTask(${st.id}, ${taskId})">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-light rounded-circle btn-sm" title="Elimina sottotask" onclick="eliminaSottoTask(${st.id}, ${taskId})">
+                <i class="bi bi-trash"></i>
+              </button>
+            </span>
+          `;
           lista.appendChild(li);
         });
       }
@@ -239,6 +255,7 @@ function caricaSottoTask(taskId) {
       input.className = 'form-control form-control-sm';
       input.style.maxWidth = '320px';
       input.style.fontSize = '0.9rem';
+      if (keepOpenInputValue) input.value = keepOpenInputValue;
 
       const btn = document.createElement('button');
       btn.className = 'btn btn-outline-secondary p-0 d-flex align-items-center justify-content-center';
@@ -261,6 +278,7 @@ function caricaSottoTask(taskId) {
       container.appendChild(inputRow);
 
       card.parentNode.insertBefore(container, card.nextSibling);
+      input.focus();
     })
     .catch(() => {
       const errorBox = document.createElement('div');
@@ -281,11 +299,47 @@ function aggiungiSottoTask(taskId, titolo) {
       return res.json();
     })
     .then(() => {
-      caricaSottoTask(taskId); // Ricarica per aggiornare
+      caricaSottoTask(taskId, ''); // Ricarica e svuota l'input
     })
     .catch(err => alert(err.message));
 }
 
+function modificaSottoTask(sottoTaskId, taskId) {
+  const nuovoTitolo = prompt('Modifica il titolo della sottotask:');
+  if (!nuovoTitolo || nuovoTitolo.trim() === '') return;
+
+  fetch(`https://localhost:7000/api/SottoTask/${sottoTaskId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      titolo: nuovoTitolo,
+      taskId: taskId
+    })
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Errore nella modifica della sottotask");
+      return res.json();
+    })
+    .then(() => {
+      caricaSottoTask(taskId, ''); // Ricarica e lascia la dropdown aperta
+    })
+    .catch(err => alert(err.message));
+}
+
+function eliminaSottoTask(sottoTaskId, taskId) {
+  if (!confirm('Sei sicuro di voler eliminare questa sottotask?')) return;
+  fetch(`https://localhost:7000/api/SottoTask/${sottoTaskId}`, {
+    method: 'DELETE'
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Errore nell'eliminazione della sottotask");
+      return res.json();
+    })
+    .then(() => {
+      caricaSottoTask(taskId, ''); // Ricarica e lascia la dropdown aperta
+    })
+    .catch(err => alert(err.message));
+}
 
 function caricaTasksPerCategoria(CategoriaId) {
   return fetch(`https://localhost:7000/api/Task/Categoria/${CategoriaId}`)
@@ -1005,7 +1059,6 @@ function caricaTasksCompletatePerCategoria(categoriaId) {
     });
 }
 
-
 // Funzione principale per caricare le task con filtri combinati
 function caricaTasksConFiltri() {
   const isCompletate = window.location.pathname.endsWith('completate.html');
@@ -1226,7 +1279,6 @@ function aggiornaConteggiConFiltriCombinati() {
   }
 }
 
-
 // Funzione per resettare completamente tutti i filtri
 function resettaTuttiFiltri() {
   utenteSelezionato = null;
@@ -1425,4 +1477,21 @@ if (btnConfermaEliminaUtente && selectEliminaUtente) {
         .catch(err => alert(err.message));
     }
   });
+}
+
+function toggleStatoSottoTask(sottoTaskId, nuovoStato, taskId) {
+  fetch(`https://localhost:7000/api/SottoTask/${sottoTaskId}`)
+    .then(res => res.json())
+    .then(sottoTask => {
+      return fetch(`https://localhost:7000/api/SottoTask/${sottoTaskId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...sottoTask, stato: nuovoStato })
+      });
+    })
+    .then(res => res.json())
+    .then(() => {
+      caricaSottoTask(taskId, '');
+    })
+    .catch(err => alert('Errore nel cambio stato della sottotask: ' + err.message));
 }

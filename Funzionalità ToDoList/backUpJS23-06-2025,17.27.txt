@@ -54,6 +54,12 @@ function apriModalCategoria() {
 
 // Funzione per aggiornare il badge con il numero di task non fatte per utente/categoria selezionato
 function aggiornaNumeroSezione() {
+  // Se entrambi i filtri sono attivi, usa la nuova funzione
+  if (utenteSelezionato && categoriaSelezionata) {
+    aggiornaConteggiConFiltriCombinati();
+    return;
+  }
+  
   // Se è selezionata una categoria, usa la funzione per categorie
   if (categoriaSelezionata) {
     mostraNumeroTaskNonFattePerCategoria(categoriaSelezionata);
@@ -85,6 +91,12 @@ function aggiornaNumeroSezione() {
 
 // Funzione per aggiornare il badge con il numero di task completate per utente/categoria selezionato
 function aggiornaNumeroSezioneCompletate() {
+  // Se entrambi i filtri sono attivi, usa la nuova funzione
+  if (utenteSelezionato && categoriaSelezionata) {
+    aggiornaConteggiConFiltriCombinati();
+    return;
+  }
+  
   // Se è selezionata una categoria, usa la funzione per categorie
   if (categoriaSelezionata) {
     mostraNumeroTaskCompletatePerCategoria(categoriaSelezionata);
@@ -113,176 +125,282 @@ function aggiornaNumeroSezioneCompletate() {
 }
 
 function caricaTasksPerUtente(UtenteId) {
-  fetch(`https://localhost:7000/api/Task/UtenteStatoNo/${UtenteId}`)
+  return fetch(`https://localhost:7000/api/Task/UtenteStatoNo/${UtenteId}`)
     .then(res => res.json())
     .then(tasks => {
       const lista = document.getElementById('lista-box');
       lista.innerHTML = '';
+
       if (!tasks || tasks.length === 0) {
-        // Mostra il messaggio se non ci sono task
         const msg = document.createElement('div');
         msg.className = 'text-center text-muted my-4';
         msg.textContent = 'Ancora nessuna task...';
         lista.appendChild(msg);
-      } else {
-        tasks.forEach(task => {
-          const scadenza = new Date(task.scadenza);
-          const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
-          const scadenzaFormattata = scadenza.toLocaleString('it-IT', options);
+        return;
+      }
 
-          const box = document.createElement('div');
-          box.className = 'card mb-2 w-100';
-          box.setAttribute('data-task-id', task.id);
-          box.innerHTML = `
-            <div class="card-body d-flex align-items-center p-2">
-              <div class="d-flex align-items-center flex-wrap gap-3">
-                <input type="checkbox" class="form-check-input me-3" style="transform: scale(1.5);"
-                ${task.stato ? 'checked' : ''} onchange="toggleStato(${task.id}, this.checked, this)">
-                <span><strong>Titolo:</strong> ${task.titolo}</span>
-                <span class="ms-3"><strong>Scadenza:</strong> ${scadenzaFormattata}</span>
+      tasks.forEach(task => {
+        const scadenza = new Date(task.scadenza);
+        const options = {
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit'
+        };
+        const scadenzaFormattata = scadenza.toLocaleString('it-IT', options);
+
+        const isCompletato = task.stato === true;
+        const taskClass = isCompletato ? 'completed' : '';
+
+        const box = document.createElement('div');
+        box.className = `card mb-2 w-100 ${taskClass}`;
+        box.setAttribute('data-task-id', task.id);
+
+        box.innerHTML = `
+          <div class="card-body">
+            <div class="row align-items-center w-100">
+              <div class="col-auto d-flex align-items-center">
+                <input type="checkbox" class="form-check-input me-3" style="transform: scale(1.4);"
+                  ${isCompletato ? 'checked' : ''} onchange="toggleStato(${task.id}, this.checked, this)">
               </div>
-              <div class="d-flex ms-auto gap-2">
-                <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                        style="width: 48px; height: 48px; padding: 0;"
-                        onclick="caricaSottoTask(${task.id})" title="Visualizza sottotask">
-                  <i class="bi bi-list-task" style="font-size: 2rem; font-weight: bold;"></i>
+              <div class="col d-flex flex-column">
+                <span class="task-title"><strong>${task.titolo}</strong></span>
+                <small class="text-muted">Scadenza: ${scadenzaFormattata}</small>
+              </div>
+              <div class="col-auto d-flex gap-2">
+                <button class="btn btn-light rounded-circle" title="Sottotask" onclick="caricaSottoTask(${task.id})">
+                  <i class="bi bi-list-task"></i>
                 </button>
-                <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                        style="width: 48px; height: 48px; padding: 0;"
-                        onclick="notaTask(${task.id})">
-                  <i class="bi bi-sticky" style="font-size: 2rem; font-weight: bold;"></i>
+                <button class="btn btn-light rounded-circle" title="Nota" onclick="notaTask(${task.id})">
+                  <i class="bi bi-sticky"></i>
                 </button>
-                <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                        style="width: 48px; height: 48px; padding: 0;"
-                        onclick="modificaTask(${task.id})">
-                  <i class="bi bi-pencil" style="font-size: 2rem; font-weight: bold;"></i>
+                <button class="btn btn-light rounded-circle" title="Modifica" onclick="modificaTask(${task.id})">
+                  <i class="bi bi-pencil"></i>
                 </button>
-                <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                        style="width: 48px; height: 48px; padding: 0;"
-                        onclick="eliminaTask(${task.id})">
-                  <i class="bi bi-trash" style="font-size: 2rem; font-weight: bold;"></i>
+                <button class="btn btn-light rounded-circle" title="Elimina" onclick="eliminaTask(${task.id})">
+                  <i class="bi bi-trash"></i>
                 </button>
               </div>
             </div>
-          `;
-          lista.appendChild(box);
-        });
-      }
+          </div>
+        `;
+
+        lista.appendChild(box);
+      });
+
       mostraNumeroTaskNonFattePerUtente(UtenteId);
       mostraNumeroTaskCompletatePerUtente(UtenteId);
     })
-    .catch(err => alert("Errore nel caricamento tasks per utente: " + err.message));
+    .catch(err => console.error("Errore nel caricamento tasks per utente:", err));
 }
 
-function caricaSottoTask(taskId) {
-  // Trova la card della task selezionata
+
+function caricaSottoTask(taskId, keepOpenInputValue = '') {
   const card = document.querySelector(`.card[data-task-id='${taskId}']`);
   if (!card) return;
 
-  // Se la sottotask-container esiste già subito dopo la card, la rimuovo (toggle)
   const nextElem = card.nextElementSibling;
   if (nextElem && nextElem.classList.contains('sottotask-container')) {
-    nextElem.remove();
-    return;
+    // Se keepOpenInputValue è undefined, chiudi la dropdown (toggle)
+    if (typeof keepOpenInputValue === 'undefined') {
+      nextElem.remove();
+      return;
+    }
   }
 
-  // Altrimenti, creo e inserisco la sottotask-container subito dopo la card
+  document.querySelectorAll('.sottotask-container').forEach(el => el.remove());
+
   fetch(`https://localhost:7000/api/SottoTask/Task/${taskId}`)
     .then(res => res.json())
     .then(sottoTasks => {
-      // Rimuovi eventuali altre sottotask-container aperte
-      document.querySelectorAll('.sottotask-container').forEach(el => el.remove());
-
       const container = document.createElement('div');
-      container.className = 'sottotask-container';
-      container.style.width = '100%';
+      container.className = 'sottotask-container border-top bg-light-subtle px-4 py-3';
+      container.style.borderRadius = '0 0 10px 10px';
+
+      const lista = document.createElement('ul');
+      lista.className = 'list-unstyled mb-2';
+
       if (!sottoTasks || sottoTasks.length === 0) {
-        container.innerHTML = '<div class="text-muted small ms-3">Nessun sotto-task</div>';
+        const li = document.createElement('li');
+        li.className = 'text-muted fst-italic';
+        li.textContent = 'Nessun sotto-task';
+        lista.appendChild(li);
       } else {
-        let items = sottoTasks.map(st =>
-          `<li>${st.titolo}</li>`
-        ).join('');
-        container.innerHTML = `
-          <ul class="mb-0">
-            ${items}
-          </ul>
-        `;
+        sottoTasks.forEach(st => {
+          const li = document.createElement('li');
+          li.className = 'mb-1 ps-2 d-flex align-items-center justify-content-between';
+          li.innerHTML = `
+            <span class="d-flex align-items-center gap-2">
+              <input type="checkbox" class="form-check-input me-2" style="transform: scale(1.4);" ${st.stato ? 'checked' : ''} onchange="toggleStatoSottoTask(${st.id}, this.checked, ${taskId})">
+              <span>${st.titolo}</span>
+            </span>
+            <span class="d-flex gap-2">
+              <button class="btn btn-light rounded-circle btn-sm" title="Modifica sottotask" onclick="modificaSottoTask(${st.id}, ${taskId})">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-light rounded-circle btn-sm" title="Elimina sottotask" onclick="eliminaSottoTask(${st.id}, ${taskId})">
+                <i class="bi bi-trash"></i>
+              </button>
+            </span>
+          `;
+          lista.appendChild(li);
+        });
       }
-      // Inserisci subito dopo la card
+
+      // Input + pulsante
+      const inputRow = document.createElement('div');
+      inputRow.className = 'd-flex align-items-center gap-2 mt-2';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = 'Aggiungi una nuova sotto-task';
+      input.className = 'form-control form-control-sm';
+      input.style.maxWidth = '320px';
+      input.style.fontSize = '0.9rem';
+      if (keepOpenInputValue) input.value = keepOpenInputValue;
+
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-outline-secondary p-0 d-flex align-items-center justify-content-center';
+      btn.style.width = '24px';
+      btn.style.height = '24px';
+      btn.style.borderRadius = '50%';
+      btn.innerHTML = `<i class="bi bi-plus-lg" style="font-size: 0.9rem;"></i>`;
+      btn.title = 'Aggiungi sotto-task';
+
+      btn.onclick = () => {
+        const titolo = input.value.trim();
+        if (!titolo) return;
+        aggiungiSottoTask(taskId, titolo);
+      };
+
+      inputRow.appendChild(input);
+      inputRow.appendChild(btn);
+
+      container.appendChild(lista);
+      container.appendChild(inputRow);
+
       card.parentNode.insertBefore(container, card.nextSibling);
+      input.focus();
     })
     .catch(() => {
-      // Rimuovi eventuali altre sottotask-container aperte
-      document.querySelectorAll('.sottotask-container').forEach(el => el.remove());
-      const container = document.createElement('div');
-      container.className = 'sottotask-container';
-      container.innerHTML = '<div class="text-danger small ms-3">Errore caricamento sotto-task</div>';
-      card.parentNode.insertBefore(container, card.nextSibling);
+      const errorBox = document.createElement('div');
+      errorBox.className = 'sottotask-container text-danger px-4 py-2';
+      errorBox.textContent = 'Errore nel caricamento delle sotto-task.';
+      card.parentNode.insertBefore(errorBox, card.nextSibling);
     });
 }
 
-function resetUtenteVisualizzato() {
-  // Carica le task appropriate in base alla pagina corrente
-  if (window.location.pathname.endsWith('completate.html')) {
-    caricaTasksCompletate();
-  } else {
-    caricaTasks();
-  }
+function aggiungiSottoTask(taskId, titolo) {
+  fetch('https://localhost:7000/api/SottoTask', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ titolo, taskID: taskId })
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Errore nell'aggiunta della sottotask");
+      return res.json();
+    })
+    .then(() => {
+      caricaSottoTask(taskId, ''); // Ricarica e svuota l'input
+    })
+    .catch(err => alert(err.message));
+}
+
+function modificaSottoTask(sottoTaskId, taskId) {
+  const nuovoTitolo = prompt('Modifica il titolo della sottotask:');
+  if (!nuovoTitolo || nuovoTitolo.trim() === '') return;
+
+  fetch(`https://localhost:7000/api/SottoTask/${sottoTaskId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      titolo: nuovoTitolo,
+      taskId: taskId
+    })
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Errore nella modifica della sottotask");
+      return res.json();
+    })
+    .then(() => {
+      caricaSottoTask(taskId, ''); // Ricarica e lascia la dropdown aperta
+    })
+    .catch(err => alert(err.message));
+}
+
+function eliminaSottoTask(sottoTaskId, taskId) {
+  if (!confirm('Sei sicuro di voler eliminare questa sottotask?')) return;
+  fetch(`https://localhost:7000/api/SottoTask/${sottoTaskId}`, {
+    method: 'DELETE'
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Errore nell'eliminazione della sottotask");
+      return res.json();
+    })
+    .then(() => {
+      caricaSottoTask(taskId, ''); // Ricarica e lascia la dropdown aperta
+    })
+    .catch(err => alert(err.message));
 }
 
 function caricaTasksPerCategoria(CategoriaId) {
-  fetch(`https://localhost:7000/api/Task/Categoria/${CategoriaId}`)
+  return fetch(`https://localhost:7000/api/Task/Categoria/${CategoriaId}`)
     .then(res => res.json())
     .then(tasks => {
       const lista = document.getElementById('lista-box');
       lista.innerHTML = '';
+
       tasks.forEach(task => {
         const scadenza = new Date(task.scadenza);
-        const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+        const options = {
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit'
+        };
         const scadenzaFormattata = scadenza.toLocaleString('it-IT', options);
 
+        const isCompletato = task.stato === true;
+        const taskClass = isCompletato ? 'completed' : '';
+
         const box = document.createElement('div');
-        box.className = 'card mb-2 w-100';
+        box.className = `card mb-2 w-100 ${taskClass}`;
         box.setAttribute('data-task-id', task.id);
+
         box.innerHTML = `
-          <div class="card-body d-flex align-items-center p-2">
-            <div class="d-flex align-items-center flex-wrap gap-3">
-              <input type="checkbox" class="form-check-input me-3" style="transform: scale(1.5);"
-              ${task.stato ? 'checked' : ''} onchange="toggleStato(${task.id}, this.checked, this)">
-              <span><strong>Titolo:</strong> ${task.titolo}</span>
-              <span class="ms-3"><strong>Scadenza:</strong> ${scadenzaFormattata}</span>
-            </div>
-            <div class="d-flex ms-auto gap-2">
-              <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                      style="width: 48px; height: 48px; padding: 0;"
-                      onclick="caricaSottoTask(${task.id})" title="Visualizza sottotask">
-                <i class="bi bi-list-task" style="font-size: 2rem; font-weight: bold;"></i>
-              </button>
-              <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                      style="width: 48px; height: 48px; padding: 0;"
-                      onclick="notaTask(${task.id})">
-                <i class="bi bi-sticky" style="font-size: 2rem; font-weight: bold;"></i>
-              </button>
-              <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                      style="width: 48px; height: 48px; padding: 0;"
-                      onclick="modificaTask(${task.id})">
-                <i class="bi bi-pencil" style="font-size: 2rem; font-weight: bold;"></i>
-              </button>
-              <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                      style="width: 48px; height: 48px; padding: 0;"
-                      onclick="eliminaTask(${task.id})">
-                <i class="bi bi-trash" style="font-size: 2rem; font-weight: bold;"></i>
-              </button>
+          <div class="card-body">
+            <div class="row align-items-center w-100">
+              <div class="col-auto d-flex align-items-center">
+                <input type="checkbox" class="form-check-input me-3" style="transform: scale(1.4);"
+                  ${isCompletato ? 'checked' : ''} onchange="toggleStato(${task.id}, this.checked, this)">
+              </div>
+              <div class="col d-flex flex-column">
+                <span class="task-title"><strong>${task.titolo}</strong></span>
+                <small class="text-muted">Scadenza: ${scadenzaFormattata}</small>
+              </div>
+              <div class="col-auto d-flex gap-2">
+                <button class="btn btn-light rounded-circle" title="Sottotask" onclick="caricaSottoTask(${task.id})">
+                  <i class="bi bi-list-task"></i>
+                </button>
+                <button class="btn btn-light rounded-circle" title="Nota" onclick="notaTask(${task.id})">
+                  <i class="bi bi-sticky"></i>
+                </button>
+                <button class="btn btn-light rounded-circle" title="Modifica" onclick="modificaTask(${task.id})">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-light rounded-circle" title="Elimina" onclick="eliminaTask(${task.id})">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
             </div>
           </div>
         `;
+
         lista.appendChild(box);
       });
+
       mostraNumeroTaskNonFattePerCategoria(CategoriaId);
       mostraNumeroTaskCompletatePerCategoria(CategoriaId);
     })
-    .catch(err => alert("Errore nel caricamento tasks per categoria: " + err.message));
+    .catch(err => console.error("Errore nel caricamento tasks per categoria:", err));
 }
+
 
 function aggiungiCategoria(e) {
   e.preventDefault();
@@ -375,61 +493,61 @@ function caricaTasks() {
     .then(tasks => {
       const lista = document.getElementById('lista-box');
       lista.innerHTML = '';
-      tasks.forEach(task => {
-        // Trasforma la stringa scadenza in oggetto Date
-        const scadenza = new Date(task.scadenza);
 
-        // Opzioni per formattare data e ora in italiano con giorno, mese, anno, ora e minuti
+      tasks.forEach(task => {
+        const scadenza = new Date(task.scadenza);
         const options = {
           year: 'numeric', month: '2-digit', day: '2-digit',
           hour: '2-digit', minute: '2-digit'
         };
-
-        // Formatta la data/ora
         const scadenzaFormattata = scadenza.toLocaleString('it-IT', options);
 
+        // Controlla se il task è completato
+        const isCompletato = task.stato === true;
+        const taskClass = isCompletato ? 'completed' : '';
+
         const box = document.createElement('div');
-        box.className = 'card mb-2 w-100';
+        box.className = `card mb-2 w-100 ${taskClass}`;
         box.setAttribute('data-task-id', task.id);
+
         box.innerHTML = `
-          <div class="card-body d-flex align-items-center p-2">
-            <div class="d-flex align-items-center flex-wrap gap-3">
-              <input type="checkbox" class="form-check-input me-3" style="transform: scale(1.5);"
-                ${task.stato ? 'checked' : ''} onchange="toggleStato(${task.id}, this.checked, this)">
-              <span><strong>Titolo:</strong> ${task.titolo}</span>
-              <span class="ms-3"><strong>Scadenza:</strong> ${scadenzaFormattata}</span>
-            </div>
-            <div class="d-flex ms-auto gap-2">
-              <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                      style="width: 48px; height: 48px; padding: 0;"
-                      onclick="caricaSottoTask(${task.id})" title="Visualizza sottotask">
-                <i class="bi bi-list-task" style="font-size: 2rem; font-weight: bold;"></i>
-              </button>
-              <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                      style="width: 48px; height: 48px; padding: 0;"
-                      onclick="notaTask(${task.id})">
-                <i class="bi bi-sticky" style="font-size: 2rem; font-weight: bold;"></i>
-              </button>
-              <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                      style="width: 48px; height: 48px; padding: 0;"
-                      onclick="modificaTask(${task.id})">
-                <i class="bi bi-pencil" style="font-size: 2rem; font-weight: bold;"></i>
-              </button>
-              <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                      style="width: 48px; height: 48px; padding: 0;"
-                      onclick="eliminaTask(${task.id})">
-                <i class="bi bi-trash" style="font-size: 2rem; font-weight: bold;"></i>
-              </button>
+          <div class="card-body">
+            <div class="row align-items-center w-100">
+              <div class="col-auto d-flex align-items-center">
+                <input type="checkbox" class="form-check-input me-3" style="transform: scale(1.4);"
+                  ${isCompletato ? 'checked' : ''} onchange="toggleStato(${task.id}, this.checked, this)">
+              </div>
+              <div class="col d-flex flex-column">
+                <span class="task-title"><strong>${task.titolo}</strong></span>
+                <small class="text-muted">Scadenza: ${scadenzaFormattata}</small>
+              </div>
+              <div class="col-auto d-flex gap-2">
+                <button class="btn btn-light rounded-circle" title="Sottotask" onclick="caricaSottoTask(${task.id})">
+                  <i class="bi bi-list-task"></i>
+                </button>
+                <button class="btn btn-light rounded-circle" title="Nota" onclick="notaTask(${task.id})">
+                  <i class="bi bi-sticky"></i>
+                </button>
+                <button class="btn btn-light rounded-circle" title="Modifica" onclick="modificaTask(${task.id})">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-light rounded-circle" title="Elimina" onclick="eliminaTask(${task.id})">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
             </div>
           </div>
         `;
+
         lista.appendChild(box);
       });
+
       aggiornaNumeroSezione();
       aggiornaNumeroSezioneCompletate();
     })
     .catch(err => console.error("Errore nel caricamento delle task:", err));
 }
+
 
 function salvaTask(e) {
   if (e) e.preventDefault();
@@ -476,13 +594,8 @@ function salvaTask(e) {
       const modal = bootstrap.Modal.getInstance(document.getElementById('exampleModal'));
       modal.hide();
       document.getElementById('taskForm').reset();
-      taskDaModificare = null;
-      document.getElementById('btnAggiungi').textContent = 'Aggiungi';
-      if (utenteSelezionato) {
-        caricaTasksPerUtente(utenteSelezionato);
-      } else {
-        caricaTasks();
-      }
+      taskDaModificare = null;      document.getElementById('btnAggiungi').textContent = 'Aggiungi';
+      caricaTasksConFiltri();
     })
 }
 
@@ -515,30 +628,9 @@ function aggiornaStatoTask(id, nuovoStato) {
         body: JSON.stringify({ ...task, stato: nuovoStato })
       });
     })
-    .then(res => res.json())
-    .then(() => {
-      // Ricarica la lista in base al filtro attivo e alla pagina
-      const isCompletate = window.location.pathname.endsWith('completate.html');
-      if (isCompletate) {
-        if (categoriaSelezionata) {
-          caricaTasksCompletatePerCategoria(categoriaSelezionata);
-        } else if (utenteSelezionato) {
-          caricaTasksCompletatePerUtente(utenteSelezionato);
-        } else {
-          caricaTasksCompletate();
-        }
-        aggiornaNumeroSezioneCompletate();
-      } else {
-        if (categoriaSelezionata) {
-          caricaTasksPerCategoria(categoriaSelezionata);
-        } else if (utenteSelezionato) {
-          caricaTasksPerUtente(utenteSelezionato);
-        } else {
-          caricaTasks();
-        }
-        aggiornaNumeroSezione();
-        aggiornaNumeroSezioneCompletate();
-      }
+    .then(res => res.json())    .then(() => {
+      // Ricarica con la nuova logica di filtri combinati
+      caricaTasksConFiltri();
     })
     .catch(err => alert(err.message));
 }
@@ -569,35 +661,8 @@ function gestioneEliminazioneTask() {
 
           console.log('Controllo pagina corrente:', window.location.pathname);
           console.log('categoriaSelezionata:', categoriaSelezionata);
-          console.log('utenteSelezionato:', utenteSelezionato);
-
-          // Ricarica la lista giusta in base alla pagina e ai filtri attivi
-          if (window.location.pathname.endsWith('completate.html')) {
-            console.log('Siamo nella pagina completate');
-            // Pagina completate - considera sia categoria che utente
-            if (categoriaSelezionata) {
-              console.log('Ricaricando per categoria:', categoriaSelezionata);
-              caricaTasksCompletatePerCategoria(categoriaSelezionata);
-            } else if (utenteSelezionato) {
-              console.log('Ricaricando per utente:', utenteSelezionato);
-              caricaTasksCompletatePerUtente(utenteSelezionato);
-            } else {
-              console.log('Ricaricando tutte le task completate');
-              caricaTasksCompletate();
-            }
-          } else {
-            console.log('Siamo nella pagina principale');
-            // Pagina principale - considera sia categoria e utente
-            if (categoriaSelezionata) {
-              caricaTasksPerCategoria(categoriaSelezionata);
-            } else if (utenteSelezionato) {
-              caricaTasksPerUtente(utenteSelezionato);
-            } else {
-              caricaTasks();
-            }
-          }
-          aggiornaNumeroSezione();
-          aggiornaNumeroSezioneCompletate();
+          console.log('utenteSelezionato:', utenteSelezionato);          // Ricarica con la nuova logica di filtri combinati
+          caricaTasksConFiltri();
         })
         .catch(err => {
           console.error('Errore durante eliminazione:', err);
@@ -710,15 +775,11 @@ function caricaUtentiForm() {
 function caricaTasksCompletate() {
   let url = 'https://localhost:7000/api/Task';
 
-  // Se è selezionata una categoria specifica
   if (categoriaSelezionata) {
     url = `https://localhost:7000/api/Task/Categoria/${categoriaSelezionata}`;
-  }
-  // Altrimenti se è selezionato un utente specifico
-  else if (utenteSelezionato) {
+  } else if (utenteSelezionato) {
     url = `https://localhost:7000/api/Task/Utente/${utenteSelezionato}`;
   }
-  // Altrimenti carica tutte le task
 
   fetch(url)
     .then(res => res.json())
@@ -726,62 +787,70 @@ function caricaTasksCompletate() {
       const lista = document.getElementById('lista-box');
       lista.innerHTML = '';
 
-      // Filtra solo le task completate
-      const tasksCompletate = tasks.filter(task => task.stato);
+      const completate = tasks.filter(task => task.stato === true);
 
-      if (tasksCompletate.length === 0) {
-        // Mostra messaggio se non ci sono task completate
+      if (completate.length === 0) {
         const msg = document.createElement('div');
         msg.className = 'text-center text-muted my-4';
         msg.textContent = 'Nessuna task completata...';
         lista.appendChild(msg);
-      } else {
-        tasksCompletate.forEach(task => {
-          const scadenza = new Date(task.scadenza);
-          const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
-          const scadenzaFormattata = scadenza.toLocaleString('it-IT', options);
+        return;
+      }
 
-          const box = document.createElement('div');
-          box.className = 'card mb-2 w-100';
-          box.setAttribute('data-task-id', task.id);
-          box.innerHTML = `
-            <div class="card-body d-flex align-items-center p-2">
-              <div class="d-flex align-items-center flex-wrap gap-3">
-                <input type="checkbox" class="form-check-input me-3" style="transform: scale(1.5);" checked 
+      completate.forEach(task => {
+        const scadenza = new Date(task.scadenza);
+        const options = {
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit'
+        };
+        const scadenzaFormattata = scadenza.toLocaleString('it-IT', options);
+
+        const box = document.createElement('div');
+        box.className = 'card mb-2 w-100 completed';
+        box.setAttribute('data-task-id', task.id);
+
+        box.innerHTML = `
+          <div class="card-body">
+            <div class="row align-items-center w-100">
+              <div class="col-auto d-flex align-items-center">
+                <input type="checkbox" class="form-check-input me-3" style="transform: scale(1.4);" checked
                   onchange="toggleStato(${task.id}, this.checked, this)">
-                <span><strong>Titolo:</strong> ${task.titolo}</span>
-                <span class="ms-3"><strong>Scadenza:</strong> ${scadenzaFormattata}</span>
               </div>
-              <div class="d-flex ms-auto gap-2">
-                <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                        style="width: 48px; height: 48px; padding: 0;"
-                        onclick="caricaSottoTask(${task.id})" title="Visualizza sottotask">
-                  <i class="bi bi-list-task" style="font-size: 2rem; font-weight: bold;"></i>
+              <div class="col d-flex flex-column">
+                <span class="task-title"><strong>${task.titolo}</strong></span>
+                <small class="text-muted">Scadenza: ${scadenzaFormattata}</small>
+              </div>
+              <div class="col-auto d-flex gap-2">
+                <button class="btn btn-light rounded-circle" title="Sottotask" onclick="caricaSottoTask(${task.id})">
+                  <i class="bi bi-list-task"></i>
                 </button>
-                <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                        style="width: 48px; height: 48px; padding: 0;"
-                        onclick="notaTask(${task.id})">
-                  <i class="bi bi-sticky" style="font-size: 2rem; font-weight: bold;"></i>
+                <button class="btn btn-light rounded-circle" title="Nota" onclick="notaTask(${task.id})">
+                  <i class="bi bi-sticky"></i>
                 </button>
-                <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                        style="width: 48px; height: 48px; padding: 0;"
-                        onclick="eliminaTask(${task.id})">
-                  <i class="bi bi-trash" style="font-size: 2rem; font-weight: bold;"></i>
+                <button class="btn btn-light rounded-circle" title="Elimina" onclick="eliminaTask(${task.id})">
+                  <i class="bi bi-trash"></i>
                 </button>
               </div>
             </div>
-          `;
-          lista.appendChild(box);
-        });
-      }
+          </div>
+        `;
+
+        lista.appendChild(box);
+      });
+
       aggiornaNumeroSezioneCompletate();
     })
     .catch(err => {
       console.error("Errore nel caricamento delle task completate:", err);
       const lista = document.getElementById('lista-box');
-      lista.innerHTML = '<div class="text-center text-danger my-4">Errore nel caricamento delle task completate</div>';
+      lista.innerHTML = `
+        <div class="text-center text-danger my-4">
+          Errore nel caricamento delle task completate
+        </div>
+      `;
     });
 }
+
 
 function mostraNumeroTaskNonFattePerUtente(utenteId) {
   if (!utenteId) {
@@ -854,60 +923,70 @@ function caricaTasksCompletatePerUtente(utenteId) {
       const lista = document.getElementById('lista-box');
       lista.innerHTML = '';
 
-      // Filtra solo le task completate
-      const tasksCompletate = tasks.filter(task => task.stato);
+      const completate = tasks.filter(task => task.stato === true);
 
-      if (tasksCompletate.length === 0) {
+      if (completate.length === 0) {
         const msg = document.createElement('div');
         msg.className = 'text-center text-muted my-4';
         msg.textContent = 'Nessuna task completata per questo utente...';
         lista.appendChild(msg);
-      } else {
-        tasksCompletate.forEach(task => {
-          const scadenza = new Date(task.scadenza);
-          const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
-          const scadenzaFormattata = scadenza.toLocaleString('it-IT', options);
-
-          const box = document.createElement('div');
-          box.className = 'card mb-2 w-100';
-          box.setAttribute('data-task-id', task.id);
-          box.innerHTML = `
-              <div class="card-body d-flex align-items-center p-2">
-                <div class="d-flex align-items-center flex-wrap gap-3">
-                  <input type="checkbox" class="form-check-input me-3" style="transform: scale(1.5);" checked
-                  onchange="toggleStato(${task.id}, this.checked, this)">
-                  <span><strong>Titolo:</strong> ${task.titolo}</span>
-                  <span class="ms-3"><strong>Scadenza:</strong> ${scadenzaFormattata}</span>
-                </div>
-                <div class="d-flex ms-auto gap-2">
-                  <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                          style="width: 48px; height: 48px; padding: 0;"
-                          onclick="caricaSottoTask(${task.id})" title="Visualizza sottotask">
-                    <i class="bi bi-list-task" style="font-size: 2rem; font-weight: bold;"></i>
-                  </button>
-                  <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                          style="width: 48px; height: 48px; padding: 0;"
-                          onclick="notaTask(${task.id})">
-                    <i class="bi bi-sticky" style="font-size: 2rem; font-weight: bold;"></i>
-                  </button>
-                  <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                          style="width: 48px; height: 48px; padding: 0;"
-                          onclick="eliminaTask(${task.id})">
-                    <i class="bi bi-trash" style="font-size: 2rem; font-weight: bold;"></i>
-                  </button>
-                </div>
-              </div>
-            `;
-          lista.appendChild(box);
-        });
+        return;
       }
+
+      completate.forEach(task => {
+        const scadenza = new Date(task.scadenza);
+        const options = {
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit'
+        };
+        const scadenzaFormattata = scadenza.toLocaleString('it-IT', options);
+
+        const box = document.createElement('div');
+        box.className = 'card mb-2 w-100 completed';
+        box.setAttribute('data-task-id', task.id);
+
+        box.innerHTML = `
+          <div class="card-body">
+            <div class="row align-items-center w-100">
+              <div class="col-auto d-flex align-items-center">
+                <input type="checkbox" class="form-check-input me-3" style="transform: scale(1.4);" checked
+                  onchange="toggleStato(${task.id}, this.checked, this)">
+              </div>
+              <div class="col d-flex flex-column">
+                <span class="task-title"><strong>${task.titolo}</strong></span>
+                <small class="text-muted">Scadenza: ${scadenzaFormattata}</small>
+              </div>
+              <div class="col-auto d-flex gap-2">
+                <button class="btn btn-light rounded-circle" title="Sottotask" onclick="caricaSottoTask(${task.id})">
+                  <i class="bi bi-list-task"></i>
+                </button>
+                <button class="btn btn-light rounded-circle" title="Nota" onclick="notaTask(${task.id})">
+                  <i class="bi bi-sticky"></i>
+                </button>
+                <button class="btn btn-light rounded-circle" title="Elimina" onclick="eliminaTask(${task.id})">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        lista.appendChild(box);
+      });
+
       mostraNumeroTaskCompletatePerUtente(utenteId);
     })
     .catch(err => {
       console.error("Errore nel caricamento tasks completate per utente:", err);
-      alert("Errore nel caricamento tasks completate per utente: " + err.message);
+      const lista = document.getElementById('lista-box');
+      lista.innerHTML = `
+        <div class="text-center text-danger my-4">
+          Errore nel caricamento delle task completate per l'utente
+        </div>
+      `;
     });
 }
+
 
 function caricaTasksCompletatePerCategoria(categoriaId) {
   fetch(`https://localhost:7000/api/Task/CategoriaStatoSi/${categoriaId}`)
@@ -915,60 +994,300 @@ function caricaTasksCompletatePerCategoria(categoriaId) {
     .then(tasks => {
       const lista = document.getElementById('lista-box');
       lista.innerHTML = '';
-      console.log("Tasks completate per categoria:", tasks);
-      // Filtra solo le task completate
-      const tasksCompletate = tasks.filter(task => task.stato);
 
-      if (tasksCompletate.length === 0) {
+      const completate = tasks.filter(task => task.stato === true);
+
+      if (completate.length === 0) {
         const msg = document.createElement('div');
         msg.className = 'text-center text-muted my-4';
         msg.textContent = 'Nessuna task completata per questa categoria...';
         lista.appendChild(msg);
-      } else {
-        tasksCompletate.forEach(task => {
-          const scadenza = new Date(task.scadenza);
-          const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
-          const scadenzaFormattata = scadenza.toLocaleString('it-IT', options);
-
-          const box = document.createElement('div');
-          box.className = 'card mb-2 w-100';
-          box.setAttribute('data-task-id', task.id);
-          box.innerHTML = `
-              <div class="card-body d-flex align-items-center p-2">
-                <div class="d-flex align-items-center flex-wrap gap-3">
-                  <input type="checkbox" class="form-check-input me-3" style="transform: scale(1.5);" checked
-                  onchange="toggleStato(${task.id}, this.checked, this)">
-                  <span><strong>Titolo:</strong> ${task.titolo}</span>
-                  <span class="ms-3"><strong>Scadenza:</strong> ${scadenzaFormattata}</span>
-                </div>
-                <div class="d-flex ms-auto gap-2">
-                  <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                          style="width: 48px; height: 48px; padding: 0;"
-                          onclick="caricaSottoTask(${task.id})" title="Visualizza sottotask">
-                    <i class="bi bi-list-task" style="font-size: 2rem; font-weight: bold;"></i>
-                  </button>
-                  <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                          style="width: 48px; height: 48px; padding: 0;"
-                          onclick="notaTask(${task.id})">
-                    <i class="bi bi-sticky" style="font-size: 2rem; font-weight: bold;"></i>
-                  </button>
-                  <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                          style="width: 48px; height: 48px; padding: 0;"
-                          onclick="eliminaTask(${task.id})">
-                    <i class="bi bi-trash" style="font-size: 2rem; font-weight: bold;"></i>
-                  </button>
-                </div>
-              </div>
-            `;
-          lista.appendChild(box);
-        });
+        return;
       }
+
+      completate.forEach(task => {
+        const scadenza = new Date(task.scadenza);
+        const options = {
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit'
+        };
+        const scadenzaFormattata = scadenza.toLocaleString('it-IT', options);
+
+        const box = document.createElement('div');
+        box.className = 'card mb-2 w-100 completed';
+        box.setAttribute('data-task-id', task.id);
+
+        box.innerHTML = `
+          <div class="card-body">
+            <div class="row align-items-center w-100">
+              <div class="col-auto d-flex align-items-center">
+                <input type="checkbox" class="form-check-input me-3" style="transform: scale(1.4);" checked
+                  onchange="toggleStato(${task.id}, this.checked, this)">
+              </div>
+              <div class="col d-flex flex-column">
+                <span class="task-title"><strong>${task.titolo}</strong></span>
+                <small class="text-muted">Scadenza: ${scadenzaFormattata}</small>
+              </div>
+              <div class="col-auto d-flex gap-2">
+                <button class="btn btn-light rounded-circle" title="Sottotask" onclick="caricaSottoTask(${task.id})">
+                  <i class="bi bi-list-task"></i>
+                </button>
+                <button class="btn btn-light rounded-circle" title="Nota" onclick="notaTask(${task.id})">
+                  <i class="bi bi-sticky"></i>
+                </button>
+                <button class="btn btn-light rounded-circle" title="Elimina" onclick="eliminaTask(${task.id})">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        lista.appendChild(box);
+      });
+
       mostraNumeroTaskCompletatePerCategoria(categoriaId);
     })
     .catch(err => {
       console.error("Errore nel caricamento tasks completate per categoria:", err);
-      alert("Errore nel caricamento tasks completate per categoria: " + err.message);
+      const lista = document.getElementById('lista-box');
+      lista.innerHTML = `
+        <div class="text-center text-danger my-4">
+          Errore nel caricamento delle task completate per la categoria
+        </div>
+      `;
     });
+}
+
+// Funzione principale per caricare le task con filtri combinati
+function caricaTasksConFiltri() {
+  const isCompletate = window.location.pathname.endsWith('completate.html');
+  
+  // Se nessun filtro è attivo, carica tutte le task
+  if (!utenteSelezionato && !categoriaSelezionata) {
+    if (isCompletate) {
+      caricaTasksCompletate();
+    } else {
+      caricaTasks();
+    }
+    // Aggiorna conteggi anche quando non ci sono filtri
+    aggiornaNumeroSezione();
+    if (typeof aggiornaNumeroSezioneCompletate === 'function') {
+      aggiornaNumeroSezioneCompletate();
+    }
+    return;
+  }
+  
+  // Se solo utente è selezionato
+  if (utenteSelezionato && !categoriaSelezionata) {
+    if (isCompletate) {
+      caricaTasksCompletatePerUtente(utenteSelezionato);
+    } else {
+      caricaTasksPerUtente(utenteSelezionato);
+    }
+    return;
+  }
+  
+  // Se solo categoria è selezionata
+  if (!utenteSelezionato && categoriaSelezionata) {
+    if (isCompletate) {
+      caricaTasksCompletatePerCategoria(categoriaSelezionata);
+    } else {
+      caricaTasksPerCategoria(categoriaSelezionata);
+    }
+    return;
+  }
+  
+  // Se entrambi sono selezionati, carica con filtro combinato
+  if (utenteSelezionato && categoriaSelezionata) {
+    if (isCompletate) {
+      caricaTasksCompletatePerUtenteECategoria(utenteSelezionato, categoriaSelezionata);
+    } else {
+      caricaTasksPerUtenteECategoria(utenteSelezionato, categoriaSelezionata);
+    }
+  }
+}
+
+// Funzione per caricare task filtrate per utente e categoria (task attive)
+function caricaTasksPerUtenteECategoria(utenteId, categoriaId) {
+  fetch(`https://localhost:7000/api/Task/UtenteCategoria/${utenteId}/${categoriaId}`)
+    .then(res => res.json())
+    .then(tasks => {
+      const lista = document.getElementById('lista-box');
+      lista.innerHTML = '';
+
+      const tasksFiltrate = tasks.filter(task => task.stato === false);
+
+      if (tasksFiltrate.length === 0) {
+        const msg = document.createElement('div');
+        msg.className = 'text-center text-muted my-4';
+        msg.textContent = 'Nessuna task trovata per questo utente e categoria...';
+        lista.appendChild(msg);
+        return;
+      }
+
+      tasksFiltrate.forEach(task => {
+        const scadenza = new Date(task.scadenza);
+        const options = {
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit'
+        };
+        const scadenzaFormattata = scadenza.toLocaleString('it-IT', options);
+
+        const box = document.createElement('div');
+        box.className = 'card mb-2 w-100';
+        box.setAttribute('data-task-id', task.id);
+
+        box.innerHTML = `
+          <div class="card-body">
+            <div class="row align-items-center w-100">
+              <div class="col-auto d-flex align-items-center">
+                <input type="checkbox" class="form-check-input me-3" style="transform: scale(1.4);"
+                  ${task.stato ? 'checked' : ''} onchange="toggleStato(${task.id}, this.checked, this)">
+              </div>
+              <div class="col d-flex flex-column">
+                <span class="task-title"><strong>${task.titolo}</strong></span>
+                <small class="text-muted">Scadenza: ${scadenzaFormattata}</small>
+              </div>
+              <div class="col-auto d-flex gap-2">
+                <button class="btn btn-light rounded-circle" title="Sottotask" onclick="caricaSottoTask(${task.id})">
+                  <i class="bi bi-list-task"></i>
+                </button>
+                <button class="btn btn-light rounded-circle" title="Nota" onclick="notaTask(${task.id})">
+                  <i class="bi bi-sticky"></i>
+                </button>
+                <button class="btn btn-light rounded-circle" title="Modifica" onclick="modificaTask(${task.id})">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class="btn btn-light rounded-circle" title="Elimina" onclick="eliminaTask(${task.id})">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        lista.appendChild(box);
+      });
+
+      aggiornaConteggiConFiltriCombinati(); // funzione di aggiornamento contatori
+    })
+    .catch(err => {
+      console.error("Errore nel caricamento tasks per utente e categoria:", err);
+      const lista = document.getElementById('lista-box');
+      lista.innerHTML = `
+        <div class="text-center text-danger my-4">
+          Errore nel caricamento delle task filtrate
+        </div>
+      `;
+    });
+}
+
+
+function caricaTasksCompletatePerUtenteECategoria(utenteId, categoriaId) {
+  fetch(`https://localhost:7000/api/Task/UtenteCategoriaCompletate/${utenteId}/${categoriaId}`)
+    .then(res => res.json())
+    .then(tasks => {
+      const lista = document.getElementById('lista-box');
+      lista.innerHTML = '';
+
+      if (!tasks || tasks.length === 0) {
+        const msg = document.createElement('div');
+        msg.className = 'text-center text-muted my-4';
+        msg.textContent = 'Nessuna task completata trovata per questo utente e categoria...';
+        lista.appendChild(msg);
+        return;
+      }
+
+      tasks.forEach(task => {
+  const scadenza = new Date(task.scadenza);
+  const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+  const scadenzaFormattata = scadenza.toLocaleString('it-IT', options);
+
+  const taskClass = task.stato ? 'completed' : '';
+  const box = document.createElement('div');
+  box.className = `card mb-2 w-100 ${taskClass}`;
+  box.setAttribute('data-task-id', task.id);
+
+  box.innerHTML = `
+    <div class="card-body">
+      <div class="row align-items-center w-100">
+        <div class="col-auto d-flex align-items-center">
+          <input type="checkbox" class="form-check-input me-3" style="transform: scale(1.4);" checked
+            onchange="toggleStato(${task.id}, this.checked, this)">
+        </div>
+        <div class="col d-flex flex-column">
+          <span class="task-title"><strong>${task.titolo}</strong></span>
+          <small class="text-muted">Scadenza: ${scadenzaFormattata}</small>
+        </div>
+        <div class="col-auto d-flex gap-2">
+          <button class="btn btn-light rounded-circle" title="Sottotask" onclick="caricaSottoTask(${task.id})">
+            <i class="bi bi-list-task"></i>
+          </button>
+          <button class="btn btn-light rounded-circle" title="Nota" onclick="notaTask(${task.id})">
+            <i class="bi bi-sticky"></i>
+          </button>
+          <button class="btn btn-light rounded-circle" title="Elimina" onclick="eliminaTask(${task.id})">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  lista.appendChild(box);
+});
+
+
+      aggiornaConteggiConFiltriCombinati();
+    })
+    .catch(err => {
+      console.error("Errore nel caricamento tasks completate per utente e categoria:", err);
+      const lista = document.getElementById('lista-box');
+      lista.innerHTML = `
+        <div class="text-center text-danger my-4">
+          Errore nel caricamento delle task completate
+        </div>
+      `;
+    });
+}
+
+
+
+function aggiornaConteggiConFiltriCombinati() {
+  const badgeNonFatte = document.getElementById('numero-sezione');
+  const badgeCompletate = document.getElementById('numero-sezione-si');
+
+  if (utenteSelezionato && categoriaSelezionata) {
+    fetch(`https://localhost:7000/api/Task/UtenteCategoria/${utenteSelezionato}/${categoriaSelezionata}`)
+      .then(res => res.json())
+      .then(tasks => {
+        const nonCompletate = tasks.filter(task => !task.stato).length;
+        const completate = tasks.filter(task => task.stato).length;
+
+        if (badgeNonFatte) badgeNonFatte.textContent = nonCompletate;
+        if (badgeCompletate) badgeCompletate.textContent = completate;
+      })
+      .catch(err => {
+        console.error("Errore nel conteggio con filtri combinati:", err);
+        if (badgeNonFatte) badgeNonFatte.textContent = '0';
+        if (badgeCompletate) badgeCompletate.textContent = '0';
+      });
+  } else {
+    aggiornaNumeroSezione();
+    aggiornaNumeroSezioneCompletate();
+  }
+}
+
+// Funzione per resettare completamente tutti i filtri
+function resettaTuttiFiltri() {
+  utenteSelezionato = null;
+  categoriaSelezionata = null;
+  document.getElementById('utente-in-uso').textContent = 'Nessun utente selezionato';
+  document.getElementById('categoria-in-uso').textContent = 'Nessuna categoria selezionata';
+  
+  // Carica le task appropriate in base alla pagina corrente
+  caricaTasksConFiltri();
 }
 
 // Event Listeners
@@ -990,19 +1309,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // Inizializza badge categoria
   document.getElementById('utente-in-uso').textContent = 'Nessun utente selezionato';
   document.getElementById('categoria-in-uso').textContent = 'Nessuna categoria selezionata';
-
   Promise.all([
-    caricaTasks(),
+    caricaTasksConFiltri(),
     caricaCategorie(),
     caricaUtentiForm()
   ]);
-  aggiornaNumeroSezione();
-  aggiornaNumeroSezioneCompletate();
 });
 
 // Event listener per form task
-document.getElementById('taskForm').addEventListener('submit', salvaTask);
-
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('taskForm');
+  if (form) {
+    form.addEventListener('submit', salvaTask);
+  }
+});
 // Event listener per conferma completamento task
 document.getElementById('btnConfermaCompleta').addEventListener('click', function () {
   if (taskIdDaCompletare !== null) {
@@ -1031,15 +1351,11 @@ document.getElementById('confermaUtenteBtn').addEventListener('click', function 
 
   if (utenteId === "tutti") {
     utenteSelezionato = null;
-    categoriaSelezionata = null; // Reset anche categoria quando si seleziona "Tutti"
+    // NON resettare la categoria, mantieni il filtro categoria se presente
     document.getElementById('utente-in-uso').textContent = "Tutti";
 
     // Carica le task appropriate in base alla pagina corrente
-    if (window.location.pathname.endsWith('completate.html')) {
-      caricaTasksCompletate();
-    } else {
-      caricaTasks();
-    }
+    caricaTasksConFiltri();
 
     const modal = bootstrap.Modal.getInstance(document.getElementById('scegliUtenteModal'));
     modal.hide();
@@ -1047,15 +1363,10 @@ document.getElementById('confermaUtenteBtn').addEventListener('click', function 
   }
   if (utenteId && utenteId !== "") {
     utenteSelezionato = utenteId;
-    categoriaSelezionata = null; // Reset categoria quando si seleziona un utente specifico
     document.getElementById('utente-in-uso').textContent = nomeUtente;
 
-    // Carica le task appropriate in base alla pagina corrente
-    if (window.location.pathname.endsWith('completate.html')) {
-      caricaTasksCompletatePerUtente(utenteId);
-    } else {
-      caricaTasksPerUtente(utenteId);
-    }
+    // Carica le task con i filtri combinati
+    caricaTasksConFiltri();
 
     const modal = bootstrap.Modal.getInstance(document.getElementById('scegliUtenteModal'));
     modal.hide();
@@ -1071,16 +1382,12 @@ document.getElementById('confermaCategoriaBtn').addEventListener('click', functi
   const nomeCategoria = categoriaSelect.options[categoriaSelect.selectedIndex].textContent;
 
   if (CategoriaID === "tutti") {
-    // Reset tutte le selezioni quando si sceglie "Tutti" per le categorie
+    // Reset solo la categoria, mantieni l'utente se selezionato
     categoriaSelezionata = null;
     document.getElementById('categoria-in-uso').textContent = "Tutti";
 
     // Carica le task appropriate in base alla pagina corrente
-    if (window.location.pathname.endsWith('completate.html')) {
-      caricaTasksCompletate();
-    } else {
-      caricaTasks();
-    }
+    caricaTasksConFiltri();
 
     const modal = bootstrap.Modal.getInstance(document.getElementById('scegliCategoriaModal'));
     modal.hide();
@@ -1090,69 +1397,101 @@ document.getElementById('confermaCategoriaBtn').addEventListener('click', functi
     categoriaSelezionata = CategoriaID;
     document.getElementById('categoria-in-uso').textContent = nomeCategoria;
 
-    // Carica le task appropriate in base alla pagina corrente
-    if (window.location.pathname.endsWith('completate.html')) {
-      caricaTasksCompletatePerCategoria(CategoriaID);
-    } else {
-      caricaTasksPerCategoria(CategoriaID);
-    }
+    // Carica le task con i filtri combinati
+    caricaTasksConFiltri();
 
     const modal = bootstrap.Modal.getInstance(document.getElementById('scegliCategoriaModal'));
     modal.hide();
-  } else {
-    alert('Seleziona una categoria!');
+  } else {    alert('Seleziona una categoria!');
   }
 });
 
 // Event listener per form categoria
-document.getElementById('formAggiungiCategoria').addEventListener('submit', aggiungiCategoria);
+document.addEventListener('DOMContentLoaded', () => {
+  const formCategoria = document.getElementById('formAggiungiCategoria');
+  if (formCategoria) {
+    formCategoria.addEventListener('submit', aggiungiCategoria);
+  }
+});
 
 // Event listener per form utente
-document.getElementById('formAggiungiUtente').addEventListener('submit', aggiungiUtente);
-
-// Event listener per conferma eliminazione categoria
-document.getElementById('confermaEliminaCategoriaBtn').addEventListener('click', () => {
-  const categoriaId = document.getElementById('eliminaCategoriaDropdown').value;
-  if (!categoriaId) {
-    alert("Seleziona una categoria da eliminare.");
-    return;
-  }
-
-  if (confirm("Sei sicuro di voler eliminare questa categoria?")) {
-    fetch(`https://localhost:7000/api/Categorie/${categoriaId}`, {
-      method: 'DELETE'
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Errore nell\'eliminazione categoria');
-        alert("Categoria eliminata!");
-        caricaCategorie && caricaCategorie();
-        const modal = bootstrap.Modal.getInstance(document.getElementById('eliminaCategoriaModal'));
-        modal.hide();
-      })
-      .catch(err => alert(err.message));
+document.addEventListener('DOMContentLoaded', () => {
+  const formUtente = document.getElementById('formAggiungiUtente');
+  if (formUtente) {
+    formUtente.addEventListener('submit', aggiungiUtente);
   }
 });
+
+const btnConfermaEliminaCategoria = document.getElementById('confermaEliminaCategoriaBtn');
+const selectEliminaCategoria = document.getElementById('eliminaCategoriaDropdown');
+
+if (btnConfermaEliminaCategoria && selectEliminaCategoria) {
+  btnConfermaEliminaCategoria.addEventListener('click', () => {
+    const categoriaId = selectEliminaCategoria.value;
+    if (!categoriaId) {
+      alert("Seleziona una categoria da eliminare.");
+      return;
+    }
+
+    if (confirm("Sei sicuro di voler eliminare questa categoria?")) {
+      fetch(`https://localhost:7000/api/Categorie/${categoriaId}`, {
+        method: 'DELETE'
+      })
+        .then(res => {
+          if (!res.ok) throw new Error('Errore nell\'eliminazione categoria');
+          alert("Categoria eliminata!");
+          caricaCategorie && caricaCategorie();
+          const modal = bootstrap.Modal.getInstance(document.getElementById('eliminaCategoriaModal'));
+          modal.hide();
+        })
+        .catch(err => alert(err.message));
+    }
+  });
+}
+
 
 // Event listener per conferma eliminazione utente
-document.getElementById('confermaEliminaUtenteBtn').addEventListener('click', () => {
-  const utenteId = document.getElementById('eliminaUtenteDropdown').value;
-  if (!utenteId) {
-    alert("Seleziona un utente da eliminare.");
-    return;
-  }
+const btnConfermaEliminaUtente = document.getElementById('confermaEliminaUtenteBtn');
+const selectEliminaUtente = document.getElementById('eliminaUtenteDropdown');
 
-  if (confirm("Sei sicuro di voler eliminare questo utente?")) {
-    fetch(`https://localhost:7000/api/Utente/${utenteId}`, {
-      method: 'DELETE'
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Errore nell\'eliminazione utente');
-        alert("Utente eliminato!");
-        caricaUtentiForm && caricaUtentiForm();
-        caricaUtentiDropdown && caricaUtentiDropdown();
-        const modal = bootstrap.Modal.getInstance(document.getElementById('eliminaUtenteModal'));
-        modal.hide();
+if (btnConfermaEliminaUtente && selectEliminaUtente) {
+  btnConfermaEliminaUtente.addEventListener('click', () => {
+    const utenteId = selectEliminaUtente.value;
+    if (!utenteId) {
+      alert("Seleziona un utente da eliminare.");
+      return;
+    }
+
+    if (confirm("Sei sicuro di voler eliminare questo utente?")) {
+      fetch(`https://localhost:7000/api/Utente/${utenteId}`, {
+        method: 'DELETE'
       })
-      .catch(err => alert(err.message));
-  }
-});
+        .then(res => {
+          if (!res.ok) throw new Error('Errore nell\'eliminazione utente');
+          alert("Utente eliminato!");
+          caricaUtentiForm && caricaUtentiForm();
+          caricaUtentiDropdown && caricaUtentiDropdown();
+          const modal = bootstrap.Modal.getInstance(document.getElementById('eliminaUtenteModal'));
+          modal.hide();
+        })
+        .catch(err => alert(err.message));
+    }
+  });
+}
+
+function toggleStatoSottoTask(sottoTaskId, nuovoStato, taskId) {
+  fetch(`https://localhost:7000/api/SottoTask/${sottoTaskId}`)
+    .then(res => res.json())
+    .then(sottoTask => {
+      return fetch(`https://localhost:7000/api/SottoTask/${sottoTaskId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...sottoTask, stato: nuovoStato })
+      });
+    })
+    .then(res => res.json())
+    .then(() => {
+      caricaSottoTask(taskId, '');
+    })
+    .catch(err => alert('Errore nel cambio stato della sottotask: ' + err.message));
+}

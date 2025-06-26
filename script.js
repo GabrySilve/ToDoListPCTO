@@ -548,6 +548,14 @@ function caricaTasksPerCategoria(CategoriaId) {
       const lista = document.getElementById('lista-box');
       lista.innerHTML = '';
 
+      if (!tasks || tasks.length === 0) {
+        const msg = document.createElement('div');
+        msg.className = 'text-center text-muted my-4';
+        msg.textContent = 'Ancora nessuna task...';
+        lista.appendChild(msg);
+        return;
+      }
+
       tasks.forEach(task => {
         const scadenza = new Date(task.scadenza);
         const options = {
@@ -693,6 +701,14 @@ function caricaTasks() {
     .then(tasks => {
       const lista = document.getElementById('lista-box');
       lista.innerHTML = '';
+
+      if (!tasks || tasks.length === 0) {
+        const msg = document.createElement('div');
+        msg.className = 'text-center text-muted my-4';
+        msg.textContent = 'Ancora nessuna task...';
+        lista.appendChild(msg);
+        return;
+      }
 
       tasks.forEach(task => {
         const scadenza = new Date(task.scadenza);

@@ -1065,3 +1065,9 @@ select.form-select:focus {
 [data-theme="dark"] .my-4.text-center.text-muted {
   color: var(--text-primary) !important;
 }
+
+/* Assicura visibilità di tutti i messaggi di stato vuoto */
+[data-theme="dark"] div.text-center.text-muted,
+[data-theme="dark"] div.text-center.text-muted.my-4 {
+  color: var(--text-primary) !important;
+}

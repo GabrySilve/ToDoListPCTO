@@ -1323,6 +1323,8 @@ function caricaTasksPerUtenteECategoria(utenteId, categoriaId) {
         msg.className = 'text-center text-muted my-4';
         msg.textContent = 'Nessuna task trovata per questo utente e categoria...';
         lista.appendChild(msg);
+
+        aggiornaNumeroSezione(); // forza il badge a 0 se necessario
         return;
       }
 
@@ -1370,7 +1372,7 @@ function caricaTasksPerUtenteECategoria(utenteId, categoriaId) {
         lista.appendChild(box);
       });
 
-      aggiornaConteggiConFiltriCombinati(); // funzione di aggiornamento contatori
+      aggiornaConteggiConFiltriCombinati(); // aggiorna contatori
     })
     .catch(err => {
       console.error("Errore nel caricamento tasks per utente e categoria:", err);
@@ -1380,8 +1382,10 @@ function caricaTasksPerUtenteECategoria(utenteId, categoriaId) {
           Errore nel caricamento delle task filtrate
         </div>
       `;
+      aggiornaNumeroSezione(); // sicurezza anche su errore
     });
 }
+
 
 
 function caricaTasksCompletatePerUtenteECategoria(utenteId, categoriaId) {
@@ -1396,59 +1400,62 @@ function caricaTasksCompletatePerUtenteECategoria(utenteId, categoriaId) {
         msg.className = 'text-center text-muted my-4';
         msg.textContent = 'Nessuna task completata trovata per questo utente e categoria...';
         lista.appendChild(msg);
+
+        aggiornaNumeroSezioneCompletate(); // forza il badge a 0 se necessario
         return;
       }
 
       tasks.forEach(task => {
-  const scadenza = new Date(task.scadenza);
-  const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
-  const scadenzaFormattata = scadenza.toLocaleString('it-IT', options);
+        const scadenza = new Date(task.scadenza);
+        const options = {
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit'
+        };
+        const scadenzaFormattata = scadenza.toLocaleString('it-IT', options);
 
-  const taskClass = task.stato ? 'completed' : '';
-  const box = document.createElement('div');
-  box.className = `card mb-2 w-100 ${taskClass}`;
-  box.setAttribute('data-task-id', task.id);
+        const taskClass = task.stato ? 'completed' : '';
+        const box = document.createElement('div');
+        box.className = `card mb-2 w-100 ${taskClass}`;
+        box.setAttribute('data-task-id', task.id);
 
-  box.innerHTML = `
-    <div class="card-body">
-      <div class="row align-items-center w-100">
-        <div class="col-auto d-flex align-items-center">
-          <input type="checkbox" class="form-check-input me-3" style="transform: scale(1.4);" checked
-            onchange="toggleStato(${task.id}, this.checked, this)">
-        </div>
-        <div class="col d-flex flex-column">
-          <span class="task-title"><strong>${task.titolo}</strong></span>
-          <small class="text-muted">Scadenza: ${scadenzaFormattata}</small>
-        </div>
-        <div class="col-auto d-flex gap-2">
-          <button class="btn btn-light rounded-circle" title="Sottotask" onclick="caricaSottoTask(${task.id})">
-            <i class="bi bi-list-task"></i>
-          </button>
-          <button class="btn btn-light rounded-circle" title="Nota" onclick="notaTask(${task.id})">
-            <i class="bi bi-sticky"></i>
-          </button>
-          <button class="btn btn-light rounded-circle" title="Elimina" onclick="eliminaTask(${task.id})">
-            <i class="bi bi-trash"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
+        box.innerHTML = `
+          <div class="card-body">
+            <div class="row align-items-center w-100">
+              <div class="col-auto d-flex align-items-center">
+                <input type="checkbox" class="form-check-input me-3" style="transform: scale(1.4);" checked
+                  onchange="toggleStato(${task.id}, this.checked, this)">
+              </div>
+              <div class="col d-flex flex-column">
+                <span class="task-title"><strong>${task.titolo}</strong></span>
+                <small class="text-muted">Scadenza: ${scadenzaFormattata}</small>
+              </div>
+              <div class="col-auto d-flex gap-2">
+                <button class="btn btn-light rounded-circle" title="Sottotask" onclick="caricaSottoTask(${task.id})">
+                  <i class="bi bi-list-task"></i>
+                </button>
+                <button class="btn btn-light rounded-circle" title="Nota" onclick="notaTask(${task.id})">
+                  <i class="bi bi-sticky"></i>
+                </button>
+                <button class="btn btn-light rounded-circle" title="Elimina" onclick="eliminaTask(${task.id})">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
 
-  lista.appendChild(box);
-});
-
-
-      aggiornaConteggiConFiltriCombinati();
+        lista.appendChild(box);
+      });
     })
     .catch(err => {
-      console.error("Errore nel caricamento tasks completate per utente e categoria:", err);
+      console.error("Errore nel caricamento tasks completate:", err);
       const lista = document.getElementById('lista-box');
       lista.innerHTML = `
         <div class="text-center text-danger my-4">
           Errore nel caricamento delle task completate
         </div>
       `;
+      aggiornaNumeroSezioneCompletate(); // sicurezza anche su errore
     });
 }
 

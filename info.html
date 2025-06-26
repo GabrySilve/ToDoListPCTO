@@ -49,45 +49,114 @@
       </div>
       <p><strong>Questa applicazione è progettata per aiutarti a organizzare e gestire le tue attività in modo semplice
           e veloce.</strong></p>
+
+      <h4 class="mt-4 mb-3">Guida alle Icone</h4>
+      <p>Ecco tutte le icone utilizzate nell'applicazione e il loro significato:</p>
+
       <ul class="list-group list-group-flush mb-4">
-        <li class="list-group-item">
-          <i class="bi bi-plus-lg text-primary me-2"></i>
-          <strong>Aggiungi Task:</strong> crea nuove attività con titolo, descrizione, scadenza, orario, utente e
-          categoria.
+        <!-- Icone di Stato -->
+        <li class="list-group-item bg-light">
+          <strong>Icone di Stato delle Task</strong>
         </li>
         <li class="list-group-item">
-          <i class="bi bi-person text-primary me-2"></i>
-          <strong>Filtra per Utente:</strong> visualizza le attività associate a un utente specifico.
+          <i class="bi bi-circle-fill text-danger me-2"></i>
+          <strong>Pallino Rosso:</strong> task non completata (attiva)
         </li>
         <li class="list-group-item">
-          <i class="bi bi-folder text-primary me-2"></i>
-          <strong>Filtra per Categoria:</strong> organizza le attività per tipo o area tematica.
+          <i class="bi bi-circle-fill text-success me-2"></i>
+          <strong>Pallino Verde:</strong> task completata
+        </li>
+
+        <!-- Icone di Navigazione -->
+        <li class="list-group-item bg-light mt-3">
+          <strong>Icone di Navigazione</strong>
+        </li>
+        <li class="list-group-item">
+          <i class="bi bi-house text-primary me-2"></i>
+          <strong>Casa:</strong> torna alla pagina principale
         </li>
         <li class="list-group-item">
           <i class="bi bi-check2-square text-success me-2"></i>
-          <strong>Completa Task:</strong> segna un’attività come completata quando hai finito.
+          <strong>Task Completate:</strong> visualizza le task finite
         </li>
         <li class="list-group-item">
-          <i class="bi bi-trash3 text-danger me-2"></i>
-          <strong>Elimina:</strong> rimuovi attività, utenti o categorie se non più necessari.
+          <i class="bi bi-arrow-left text-primary me-2"></i>
+          <strong>Freccia Indietro:</strong> torna alla pagina precedente
         </li>
         <li class="list-group-item">
-          <i class="bi bi-pencil-square text-primary ms-1"></i>
-          <strong>Modifica:</strong> aggiorna il contenuto di un’attività esistente, cambiando titolo, descrizione,
-          data,
-          orario o categoria se necessario.
+          <i class="bi bi-info-lg text-primary me-2"></i>
+          <strong>Info Grande:</strong> apre questa pagina di aiuto
+        </li>
+
+        <!-- Icone di Filtro -->
+        <li class="list-group-item bg-light mt-3">
+          <strong>Icone di Filtro</strong>
         </li>
         <li class="list-group-item">
-          <i class="bi bi-sticky text-secondary ms-1"></i>
-          <strong>Visualizza info Task:</strong> consulta i dettagli completi di ogni attività tramite una finestra
-          pop-up.
+          <i class="bi bi-person text-primary me-2"></i>
+          <strong>Persona:</strong> filtra per utente
         </li>
         <li class="list-group-item">
-          <i class="bi-list-task text-secondary ms-1"></i>
-          <strong>Visualizza sotto Task:</strong> espandi la lista per vedere i sotto-task associati a un'attività
-          principale e organizzare meglio il lavoro in passaggi più piccoli.
+          <i class="bi bi-folder text-primary me-2"></i>
+          <strong>Cartella:</strong> filtra per categoria
+        </li>
+
+        <!-- Icone di Azione su Task -->
+        <li class="list-group-item bg-light mt-3">
+          <strong>Icone di Azione sulle Task</strong>
+        </li>
+        <li class="list-group-item">
+          <i class="bi bi-plus-lg text-success me-2"></i>
+          <strong>Più:</strong> aggiungi nuova task o sottotask
+        </li>
+        <li class="list-group-item">
+          <i class="bi bi-list-task text-secondary me-2"></i>
+          <strong>Lista:</strong> visualizza sottotask
+        </li>
+        <li class="list-group-item">
+          <i class="bi bi-sticky text-secondary me-2"></i>
+          <strong>Post-it:</strong> visualizza dettagli della task
+        </li>
+        <li class="list-group-item">
+          <i class="bi bi-pencil text-primary me-2"></i>
+          <strong>Matita:</strong> modifica task o sottotask
+        </li>
+        <li class="list-group-item">
+          <i class="bi bi-trash text-danger me-2"></i>
+          <strong>Cestino:</strong> elimina singola task o sottotask
+        </li>
+        <li class="list-group-item">
+          <i class="bi bi-x-octagon text-danger me-2"></i>
+          <strong>X Ottagono:</strong> elimina tutte le task completate
+        </li>
+
+        <!-- Icone di Gestione Utenti -->
+        <li class="list-group-item bg-light mt-3">
+          <strong>Icone di Gestione Utenti</strong>
+        </li>
+        <li class="list-group-item">
+          <i class="bi bi-person-plus-fill text-success me-2"></i>
+          <strong>Aggiungi Utente:</strong> crea nuovo utente
+        </li>
+        <li class="list-group-item">
+          <i class="bi bi-person-dash-fill text-danger me-2"></i>
+          <strong>Rimuovi Utente:</strong> elimina utente esistente
+        </li>
+
+        <!-- Icone di Gestione Categorie -->
+        <li class="list-group-item bg-light mt-3">
+          <strong>Icone di Gestione Categorie</strong>
+        </li>
+        <li class="list-group-item">
+          <i class="bi bi-folder-plus text-success me-2"></i>
+          <strong>Aggiungi Categoria:</strong> crea nuova categoria
+        </li>
+        <li class="list-group-item">
+          <i class="bi bi-folder-minus text-danger me-2"></i>
+          <strong>Rimuovi Categoria:</strong> elimina categoria esistente
         </li>
       </ul>
+
       <p class="text-muted">La To Do List è pensata per essere veloce, intuitiva e personalizzabile. Che tu stia
         gestendo progetti, studio o impegni personali, è lo strumento ideale per non dimenticare nulla.</p>
     </div>

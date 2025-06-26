@@ -50,6 +50,12 @@
                     style="width: 48px; height: 48px; padding: 0;" onclick="apriModalCategoria()">
                     <i class="bi bi-folder" style="font-size: 2rem; font-weight: bold;"></i>
                 </button>
+                <!--Elimina tutte le task completate-->
+                <button class="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
+                    style="width: 48px; height: 48px; padding: 0;" onclick="eliminaTutteTaskCompletate()" 
+                    title="Elimina tutte le task completate">
+                    <i class="bi bi-trash" style="font-size: 2rem; font-weight: bold;"></i>
+                </button>
             </div>
         </div>
     </nav>
@@ -185,6 +191,26 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Annulla</button>
                     <button type="button" class="btn btn-primary" id="btnConfermaEliminaSottoTask">Elimina</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal per eliminare tutte le task completate -->
+    <div class="modal fade" id="confermaTutteTaskModal" tabindex="-1" aria-labelledby="confermaTutteTaskModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confermaTutteTaskModalLabel">Eliminazione di Tutte le Task Completate</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    Sei sicuro di voler eliminare <strong>tutte</strong> le task completate?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" id="btnConfermaTutteTask">Elimina</button>
                 </div>
             </div>
         </div>

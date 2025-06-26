@@ -1750,4 +1750,87 @@ document.addEventListener('DOMContentLoaded', () => {
       taskIdCorrente = null;
     });
   }
+
+  // Gestione eliminazione di tutte le task completate
+  const btnConfermaTutteTask = document.getElementById('btnConfermaTutteTask');
+  if (btnConfermaTutteTask) {
+    btnConfermaTutteTask.addEventListener('click', confermaEliminazioneTutteTaskCompletate);
+  }
 });
+
+// Funzione per aprire il modal di conferma eliminazione tutte le task completate
+function eliminaTutteTaskCompletate() {
+  // Ripristina il contenuto originale del modal
+  const modalTitle = document.getElementById('confermaTutteTaskModalLabel');
+  const modalBody = document.querySelector('#confermaTutteTaskModal .modal-body');
+  const modalFooter = document.querySelector('#confermaTutteTaskModal .modal-footer');
+  
+  modalTitle.textContent = 'Eliminazione di Tutte le Task Completate';
+  modalBody.innerHTML = 'Sei sicuro di voler eliminare <strong>tutte</strong> le task completate?';
+  modalFooter.innerHTML = `
+    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Annulla</button>
+    <button type="button" class="btn btn-primary" id="btnConfermaTutteTask">Elimina</button>
+  `;
+  
+  // Riattacca l'event listener al nuovo bottone
+  const btnConfermaTutteTask = document.getElementById('btnConfermaTutteTask');
+  if (btnConfermaTutteTask) {
+    btnConfermaTutteTask.addEventListener('click', confermaEliminazioneTutteTaskCompletate);
+  }
+  
+  const modal = new bootstrap.Modal(document.getElementById('confermaTutteTaskModal'));
+  modal.show();
+}
+
+// Funzione per confermare ed eseguire l'eliminazione di tutte le task completate
+async function confermaEliminazioneTutteTaskCompletate() {
+  try {
+    // Prima otteniamo tutte le task completate
+    let url = 'https://localhost:7000/api/Task';
+    
+    if (categoriaSelezionata) {
+      url = `https://localhost:7000/api/Task/Categoria/${categoriaSelezionata}`;
+    } else if (utenteSelezionato) {
+      url = `https://localhost:7000/api/Task/Utente/${utenteSelezionato}`;
+    }
+
+    const response = await fetch(url);
+    const tasks = await response.json();
+    
+    // Filtriamo solo le task completate
+    const taskCompletate = tasks.filter(task => task.stato === true);
+    
+    if (taskCompletate.length === 0) {
+      // Cambia il contenuto del modal per mostrare il messaggio
+      const modalTitle = document.getElementById('confermaTutteTaskModalLabel');
+      const modalBody = document.querySelector('#confermaTutteTaskModal .modal-body');
+      const modalFooter = document.querySelector('#confermaTutteTaskModal .modal-footer');
+      
+      modalTitle.textContent = 'Nessuna Task da Eliminare';
+      modalBody.innerHTML = '<div class="text-center"><p>Non ci sono task completate da eliminare.</p></div>';
+      modalFooter.innerHTML = '<button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>';
+      
+      return;
+    }
+
+    // Eliminiamo tutte le task completate una per una
+    const eliminazioniPromises = taskCompletate.map(task => 
+      fetch(`https://localhost:7000/api/Task/${task.id}`, {
+        method: 'DELETE'
+      })
+    );
+
+    await Promise.all(eliminazioniPromises);
+
+    // Chiudiamo il modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('confermaTutteTaskModal'));
+    modal.hide();
+
+    // Ricarichiamo la lista delle task
+    caricaTasksConFiltri();
+
+  } catch (error) {
+    console.error('Errore durante l\'eliminazione delle task completate:', error);
+    alert('Errore durante l\'eliminazione delle task completate: ' + error.message);
+  }
+}

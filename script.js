@@ -202,31 +202,98 @@ function caricaTasksPerUtente(UtenteId) {
 }
 
 
-function caricaSottoTask(taskId, keepOpenInputValue = '') {
+function caricaSottoTask(taskId, keepOpenInputValue = '', forceUpdate = false) {
   const card = document.querySelector(`.card[data-task-id='${taskId}']`);
   if (!card) return;
 
+  const isCompletatePage = window.location.pathname.endsWith('completate.html');
+
   const nextElem = card.nextElementSibling;
   if (nextElem && nextElem.classList.contains('sottotask-container')) {
-    // Se keepOpenInputValue è undefined, chiudi la dropdown (toggle)
-    if (typeof keepOpenInputValue === 'undefined') {
+    if (!forceUpdate) {
+      // Se la dropdown è già aperta e non è un aggiornamento forzato, chiudila
       nextElem.remove();
       return;
     }
+    // Se è un aggiornamento forzato, aggiorna solo il contenuto senza rimuovere il container
+    fetch(`https://localhost:7000/api/SottoTask/Task/${taskId}`)
+      .then(res => res.json())
+      .then(sottoTasks => {
+        // Ricostruisci la lista e l'input
+        const container = nextElem;
+        container.innerHTML = '';
+        const lista = document.createElement('ul');
+        lista.className = 'list-unstyled mb-2';
+        if (!sottoTasks || sottoTasks.length === 0) {
+          const li = document.createElement('li');
+          li.className = 'text-muted fst-italic';
+          li.textContent = 'Nessun sotto-task';
+          lista.appendChild(li);
+        } else {
+          sottoTasks.forEach(st => {
+            const li = document.createElement('li');
+            li.className = 'mb-1 ps-2 d-flex align-items-center justify-content-between';
+            li.innerHTML = `
+              <span class="d-flex align-items-center gap-2">
+                <input type="checkbox" class="form-check-input me-2" style="transform: scale(1.4);" ${st.stato ? 'checked' : ''} ${isCompletatePage ? 'disabled' : ''} onchange="${isCompletatePage ? '' : `toggleStatoSottoTask(${st.id}, this.checked, ${taskId}, this)`}">
+                <span>${st.titolo}</span>
+              </span>
+              <span class="d-flex gap-2">
+                ${isCompletatePage ? '' : `<button class=\"btn btn-light rounded-circle btn-sm\" title=\"Modifica sottotask\" onclick=\"modificaSottoTask(${st.id}, ${taskId}, this)\"><i class=\"bi bi-pencil\"></i></button>`}
+                <button class=\"btn btn-light rounded-circle btn-sm\" title=\"Elimina sottotask\" onclick=\"eliminaSottoTask(${st.id}, ${taskId}, this)\"><i class=\"bi bi-trash\"></i></button>
+              </span>
+            `;
+            lista.appendChild(li);
+          });
+        }
+        // Input + pulsante
+        if (!isCompletatePage) {
+          const inputRow = document.createElement('div');
+          inputRow.className = 'd-flex align-items-center gap-2 mt-2';
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.placeholder = 'Aggiungi una nuova sotto-task';
+          input.className = 'form-control form-control-sm';
+          input.style.maxWidth = '320px';
+          input.style.fontSize = '0.9rem';
+          if (keepOpenInputValue) input.value = keepOpenInputValue;
+          const btn = document.createElement('button');
+          btn.className = 'btn btn-outline-secondary p-0 d-flex align-items-center justify-content-center';
+          btn.style.width = '24px';
+          btn.style.height = '24px';
+          btn.style.borderRadius = '50%';
+          btn.innerHTML = `<i class=\"bi bi-plus-lg\" style=\"font-size: 0.9rem;\"></i>`;
+          btn.title = 'Aggiungi sotto-task';
+          btn.onclick = () => {
+            const titolo = input.value.trim();
+            if (!titolo) return;
+            aggiungiSottoTask(taskId, titolo);
+          };
+          inputRow.appendChild(input);
+          inputRow.appendChild(btn);
+          container.appendChild(lista);
+          container.appendChild(inputRow);
+          input.focus();
+        } else {
+          container.appendChild(lista);
+        }
+      })
+      .catch(() => {
+        nextElem.innerHTML = '<div class="text-danger px-4 py-2">Errore nel caricamento delle sotto-task.</div>';
+      });
+    return;
   }
 
+  // Se la dropdown non è aperta, aprila normalmente
   document.querySelectorAll('.sottotask-container').forEach(el => el.remove());
-
   fetch(`https://localhost:7000/api/SottoTask/Task/${taskId}`)
     .then(res => res.json())
     .then(sottoTasks => {
       const container = document.createElement('div');
       container.className = 'sottotask-container border-top bg-light-subtle px-4 py-3';
       container.style.borderRadius = '0 0 10px 10px';
-
       const lista = document.createElement('ul');
       lista.className = 'list-unstyled mb-2';
-
       if (!sottoTasks || sottoTasks.length === 0) {
         const li = document.createElement('li');
         li.className = 'text-muted fst-italic';
@@ -238,56 +305,51 @@ function caricaSottoTask(taskId, keepOpenInputValue = '') {
           li.className = 'mb-1 ps-2 d-flex align-items-center justify-content-between';
           li.innerHTML = `
             <span class="d-flex align-items-center gap-2">
-              <input type="checkbox" class="form-check-input me-2" style="transform: scale(1.4);" ${st.stato ? 'checked' : ''} onchange="toggleStatoSottoTask(${st.id}, this.checked, ${taskId})">
+              <input type="checkbox" class="form-check-input me-2" style="transform: scale(1.4);" ${st.stato ? 'checked' : ''} ${isCompletatePage ? 'disabled' : ''} onchange="${isCompletatePage ? '' : `toggleStatoSottoTask(${st.id}, this.checked, ${taskId}, this)`}">
               <span>${st.titolo}</span>
             </span>
             <span class="d-flex gap-2">
-              <button class="btn btn-light rounded-circle btn-sm" title="Modifica sottotask" onclick="modificaSottoTask(${st.id}, ${taskId}, this)">
-                <i class="bi bi-pencil"></i>
-              </button>
-              <button class="btn btn-light rounded-circle btn-sm" title="Elimina sottotask" onclick="eliminaSottoTask(${st.id}, ${taskId})">
-                <i class="bi bi-trash"></i>
-              </button>
+              ${isCompletatePage ? '' : `<button class=\"btn btn-light rounded-circle btn-sm\" title=\"Modifica sottotask\" onclick=\"modificaSottoTask(${st.id}, ${taskId}, this)\"><i class=\"bi bi-pencil\"></i></button>`}
+              <button class=\"btn btn-light rounded-circle btn-sm\" title=\"Elimina sottotask\" onclick=\"eliminaSottoTask(${st.id}, ${taskId}, this)\"><i class=\"bi bi-trash\"></i></button>
             </span>
           `;
           lista.appendChild(li);
         });
       }
-
-      // Input + pulsante
-      const inputRow = document.createElement('div');
-      inputRow.className = 'd-flex align-items-center gap-2 mt-2';
-
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.placeholder = 'Aggiungi una nuova sotto-task';
-      input.className = 'form-control form-control-sm';
-      input.style.maxWidth = '320px';
-      input.style.fontSize = '0.9rem';
-      if (keepOpenInputValue) input.value = keepOpenInputValue;
-
-      const btn = document.createElement('button');
-      btn.className = 'btn btn-outline-secondary p-0 d-flex align-items-center justify-content-center';
-      btn.style.width = '24px';
-      btn.style.height = '24px';
-      btn.style.borderRadius = '50%';
-      btn.innerHTML = `<i class="bi bi-plus-lg" style="font-size: 0.9rem;"></i>`;
-      btn.title = 'Aggiungi sotto-task';
-
-      btn.onclick = () => {
-        const titolo = input.value.trim();
-        if (!titolo) return;
-        aggiungiSottoTask(taskId, titolo);
-      };
-
-      inputRow.appendChild(input);
-      inputRow.appendChild(btn);
-
-      container.appendChild(lista);
-      container.appendChild(inputRow);
-
+      if (!isCompletatePage) {
+        const inputRow = document.createElement('div');
+        inputRow.className = 'd-flex align-items-center gap-2 mt-2';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = 'Aggiungi una nuova sotto-task';
+        input.className = 'form-control form-control-sm';
+        input.style.maxWidth = '320px';
+        input.style.fontSize = '0.9rem';
+        if (keepOpenInputValue) input.value = keepOpenInputValue;
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-outline-secondary p-0 d-flex align-items-center justify-content-center';
+        btn.style.width = '24px';
+        btn.style.height = '24px';
+        btn.style.borderRadius = '50%';
+        btn.innerHTML = `<i class=\"bi bi-plus-lg\" style=\"font-size: 0.9rem;\"></i>`;
+        btn.title = 'Aggiungi sotto-task';
+        btn.onclick = () => {
+          const titolo = input.value.trim();
+          if (!titolo) return;
+          aggiungiSottoTask(taskId, titolo);
+        };
+        inputRow.appendChild(input);
+        inputRow.appendChild(btn);
+        container.appendChild(lista);
+        container.appendChild(inputRow);
+        input.focus();
+      } else {
+        container.appendChild(lista);
+      }
       card.parentNode.insertBefore(container, card.nextSibling);
-      input.focus();
+      if (!isCompletatePage && container.querySelector('input[type="text"]')) {
+        container.querySelector('input[type="text"]').focus();
+      }
     })
     .catch(() => {
       const errorBox = document.createElement('div');
@@ -308,7 +370,48 @@ function aggiungiSottoTask(taskId, titolo) {
       return res.json();
     })
     .then(() => {
-      caricaSottoTask(taskId, ''); // Ricarica e svuota l'input
+      // Ricarica lasciando la dropdown aperta e l'input vuoto
+      caricaSottoTask(taskId, '', true); // <--- forceUpdate true
+      // Focus sull'input dopo aggiunta
+      setTimeout(() => {
+        const card = document.querySelector(`.card[data-task-id='${taskId}']`);
+        if (card) {
+          const nextElem = card.nextElementSibling;
+          if (nextElem) {
+            const input = nextElem.querySelector('input[type="text"]');
+            if (input) input.value = '';
+            if (input) input.focus();
+          }
+        }
+      }, 100);
+    })
+    .catch(err => alert(err.message));
+}
+
+function toggleStatoSottoTask(sottoTaskId, nuovoStato, taskId, checkboxElement) {
+  fetch(`https://localhost:7000/api/SottoTask/${sottoTaskId}`)
+    .then(res => res.json())
+    .then(sottoTask => {
+      return fetch(`https://localhost:7000/api/SottoTask/${sottoTaskId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...sottoTask, stato: nuovoStato })
+      });
+    })
+    .then(res => res.json())
+    .then(() => {
+      // Ricarica lasciando la dropdown aperta e focus sull'input
+      caricaSottoTask(taskId, '', true); // <--- forceUpdate true
+      setTimeout(() => {
+        const card = document.querySelector(`.card[data-task-id='${taskId}']`);
+        if (card) {
+          const nextElem = card.nextElementSibling;
+          if (nextElem) {
+            const input = nextElem.querySelector('input[type="text"]');
+            if (input) input.focus();
+          }
+        }
+      }, 100);
     })
     .catch(err => alert(err.message));
 }
@@ -328,7 +431,7 @@ function modificaSottoTask(sottoTaskId, taskId, buttonElement) {
 }
 
 // Funzione per aprire la modale di eliminazione sottotask
-function eliminaSottoTask(sottoTaskId, taskId) {
+function eliminaSottoTask(sottoTaskId, taskId, buttonElement) {
   sottoTaskDaEliminare = sottoTaskId;
   taskIdCorrente = taskId;
   const modal = new bootstrap.Modal(document.getElementById('eliminaSottoTaskModal'));
@@ -353,7 +456,18 @@ if (btnConfermaModificaSottoTask) {
       });
       if (!res.ok) throw new Error('Errore nella modifica della sottotask');
       await res.json();
+      // Ricarica lasciando la dropdown aperta e focus sull'input
       caricaSottoTask(taskIdCorrente, '');
+      setTimeout(() => {
+        const card = document.querySelector(`.card[data-task-id='${taskIdCorrente}']`);
+        if (card) {
+          const nextElem = card.nextElementSibling;
+          if (nextElem) {
+            const input = nextElem.querySelector('input[type="text"]');
+            if (input) input.focus();
+          }
+        }
+      }, 100);
       sottoTaskDaModificare = null;
       taskIdCorrente = null;
       const modal = bootstrap.Modal.getInstance(document.getElementById('modificaSottoTaskModal'));
@@ -378,7 +492,18 @@ if (btnConfermaEliminaSottoTask) {
         return res.json();
       })
       .then(() => {
+        // Ricarica lasciando la dropdown aperta e focus sull'input
         caricaSottoTask(taskIdCorrente, '');
+        setTimeout(() => {
+          const card = document.querySelector(`.card[data-task-id='${taskIdCorrente}']`);
+          if (card) {
+            const nextElem = card.nextElementSibling;
+            if (nextElem) {
+              const input = nextElem.querySelector('input[type="text"]');
+              if (input) input.focus();
+            }
+          }
+        }, 100);
         sottoTaskDaEliminare = null;
         taskIdCorrente = null;
         const modal = bootstrap.Modal.getInstance(document.getElementById('eliminaSottoTaskModal'));
@@ -386,6 +511,34 @@ if (btnConfermaEliminaSottoTask) {
       })
       .catch(err => alert(err.message));
   });
+}
+
+function toggleStatoSottoTask(sottoTaskId, nuovoStato, taskId, checkboxElement) {
+  fetch(`https://localhost:7000/api/SottoTask/${sottoTaskId}`)
+    .then(res => res.json())
+    .then(sottoTask => {
+      return fetch(`https://localhost:7000/api/SottoTask/${sottoTaskId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...sottoTask, stato: nuovoStato })
+      });
+    })
+    .then(res => res.json())
+    .then(() => {
+      // Ricarica lasciando la dropdown aperta e focus sull'input
+      caricaSottoTask(taskId, '', true); // <--- forceUpdate true
+      setTimeout(() => {
+        const card = document.querySelector(`.card[data-task-id='${taskId}']`);
+        if (card) {
+          const nextElem = card.nextElementSibling;
+          if (nextElem) {
+            const input = nextElem.querySelector('input[type="text"]');
+            if (input) input.focus();
+          }
+        }
+      }, 100);
+    })
+    .catch(err => alert(err.message));
 }
 
 function caricaTasksPerCategoria(CategoriaId) {
@@ -1526,23 +1679,6 @@ if (btnConfermaEliminaUtente && selectEliminaUtente) {
   });
 }
 
-function toggleStatoSottoTask(sottoTaskId, nuovoStato, taskId) {
-  fetch(`https://localhost:7000/api/SottoTask/${sottoTaskId}`)
-    .then(res => res.json())
-    .then(sottoTask => {
-      return fetch(`https://localhost:7000/api/SottoTask/${sottoTaskId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...sottoTask, stato: nuovoStato })
-      });
-    })
-    .then(res => res.json())
-    .then(() => {
-      caricaSottoTask(taskId, '');
-    })
-    .catch(err => alert('Errore nel cambio stato della sottotask: ' + err.message));
-}
-
 // === FUNZIONE CONFERMA MODIFICA SOTTOTASK ===
 function confermaSalvaModificaSottoTask() {
   const nuovoTitolo = document.getElementById('titoloSottoTaskModifica').value.trim();
@@ -1562,7 +1698,7 @@ function confermaSalvaModificaSottoTask() {
     .then(() => {
       const modal = bootstrap.Modal.getInstance(document.getElementById('modificaSottoTaskModal'));
       modal.hide();
-      caricaSottoTask(taskIdCorrente, '');
+      caricaSottoTask(taskIdCorrente, '', true);
       sottoTaskDaModificare = null;
       taskIdCorrente = null;
     })
@@ -1581,7 +1717,7 @@ function confermaEliminaSottoTask() {
     .then(() => {
       const modal = bootstrap.Modal.getInstance(document.getElementById('eliminaSottoTaskModal'));
       modal.hide();
-      caricaSottoTask(taskIdCorrente, '');
+      caricaSottoTask(taskIdCorrente, '', true);
       sottoTaskDaEliminare = null;
       taskIdCorrente = null;
     })

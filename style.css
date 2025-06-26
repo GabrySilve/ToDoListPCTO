@@ -1,41 +1,203 @@
+/* ===== VARIABILI PER I TEMI ===== */
+:root {
+  /* Tema Chiaro */
+  --bg-primary: linear-gradient(135deg, #e3f0ff 0%, #f9faff 100%);
+  --bg-secondary: rgba(255, 255, 255, 0.97);
+  --bg-card: linear-gradient(120deg, #f9faff 80%, #e3f0ff 100%);
+  --bg-card-hover: linear-gradient(120deg, #e3f0ff 60%, #f9faff 100%);
+  --bg-navbar: linear-gradient(90deg, #007bff 70%, #00c6ff 100%);
+  --bg-sottotask: linear-gradient(90deg, #f0f7ff 80%, #e3f0ff 100%);
+  --bg-subtask-info: linear-gradient(135deg, #e3f0ff 0%, #f9faff 100%);
+  
+  --text-primary: #333;
+  --text-secondary: #444;
+  --text-muted: #6c757d;
+  --text-navbar: #fff;
+  --text-modal: #00c6ff;
+  
+  --border-color: #b5c9e2;
+  --border-left-color: #007bff;
+  --shadow-primary: rgba(0, 123, 255, 0.08);
+  --shadow-card: rgba(0, 123, 255, 0.07);
+  --shadow-card-hover: rgba(0, 123, 255, 0.22);
+  
+  --accent-primary: #007bff;
+  --accent-secondary: #00c6ff;
+  --accent-hover: #0056b3;
+}
+
+[data-theme="dark"] {
+  /* Tema Scuro */
+  --bg-primary: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+  --bg-secondary: rgba(22, 22, 36, 0.95);
+  --bg-card: linear-gradient(120deg, #1e1e3f 80%, #252547 100%);
+  --bg-card-hover: linear-gradient(120deg, #252547 60%, #2d2d5a 100%);
+  --bg-navbar: linear-gradient(90deg, #6c5ce7 70%, #a29bfe 100%);
+  --bg-sottotask: linear-gradient(90deg, #2d2d5a 80%, #1e1e3f 100%);
+  --bg-subtask-info: linear-gradient(135deg, #1e1e3f 0%, #252547 100%);
+  
+  --text-primary: #f8f9fa;
+  --text-secondary: #e9ecef;
+  --text-muted: #adb5bd;
+  --text-navbar: #ffffff;
+  --text-modal: #a29bfe;
+  
+  --border-color: #495057;
+  --border-left-color: #6c5ce7;
+  --shadow-primary: rgba(108, 92, 231, 0.15);
+  --shadow-card: rgba(108, 92, 231, 0.12);
+  --shadow-card-hover: rgba(162, 155, 254, 0.25);
+  
+  --accent-primary: #6c5ce7;
+  --accent-secondary: #8b7cf6;
+  --accent-hover: #5b4cdb;
+  --icon-color-dark: #7c6df0;
+}
+
 /* Reset e base */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #e3f0ff 0%, #f9faff 100%);
+  background: var(--bg-primary);
   margin: 0;
   padding: 0;
-  color: #333;
+  color: var(--text-primary);
   min-height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .navbar {
-  background: linear-gradient(90deg, #007bff 70%, #00c6ff 100%);
-  box-shadow: 0 4px 18px 0 rgba(0, 123, 255, 0.10);
+  background: var(--bg-navbar);
+  box-shadow: 0 4px 18px 0 var(--shadow-primary);
   border-bottom-left-radius: 18px;
   border-bottom-right-radius: 18px;
   padding: 0.7rem 2rem;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .navbar-brand {
   font-size: 2.1rem;
   letter-spacing: 2px;
   font-weight: 700;
-  color: #fff !important;
+  color: var(--text-navbar) !important;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.05);
+}
+
+.theme-toggle i {
+  color: var(--text-navbar);
+  font-size: 1.4rem;
+  transition: transform 0.3s ease;
+}
+
+[data-theme="dark"] .theme-toggle i {
+  transform: rotate(180deg);
+}
+
+/* Stili per le pills nella navbar */
+.navbar .bg-white {
+  background: rgba(255, 255, 255, 0.95) !important;
+  transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .navbar .bg-white {
+  background: rgba(52, 58, 64, 0.9) !important;
+  border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .navbar .text-danger {
+  color: #ff6b6b !important;
+}
+
+[data-theme="dark"] .navbar .text-primary {
+  color: var(--accent-secondary) !important;
+}
+
+/* Stili per le icone nel tema scuro */
+[data-theme="dark"] .bi {
+  color: var(--icon-color-dark, #7c6df0) !important;
+}
+
+/* Manteniamo i colori originali per i pallini nella navbar */
+[data-theme="dark"] .navbar .text-danger {
+  color: #ff6b6b !important;
+}
+
+[data-theme="dark"] .navbar .text-primary {
+  color: var(--accent-secondary) !important;
+}
+
+/* Manteniamo i colori originali per tutti i pallini ovunque */
+[data-theme="dark"] .text-danger {
+  color: #dc3545 !important;
+}
+
+[data-theme="dark"] .text-success {
+  color: #28a745 !important;
+}
+
+/* Eccezioni specifiche per elementi che devono rimanere viola */
+[data-theme="dark"] .modal .text-primary,
+[data-theme="dark"] .btn .text-primary,
+[data-theme="dark"] .card .text-primary:not(.text-danger):not(.text-success) {
+  color: var(--icon-color-dark, #7c6df0) !important;
+}
+
+/* Info icone nella lista */
+[data-theme="dark"] .info-list-group-item i {
+  color: var(--icon-color-dark, #7c6df0) !important;
+}
+
+/* Tutte le icone Bootstrap nel tema scuro (esclusi i pallini colorati) */
+[data-theme="dark"] i[class*="bi-"]:not(.text-danger):not(.text-success) {
+  color: var(--icon-color-dark, #7c6df0) !important;
+}
+
+/* Assicuriamo che i pallini mantengano i loro colori ovunque */
+[data-theme="dark"] i.text-danger,
+[data-theme="dark"] .text-danger i,
+[data-theme="dark"] .bi-circle-fill.text-danger {
+  color: #dc3545 !important;
+}
+
+[data-theme="dark"] i.text-success,
+[data-theme="dark"] .text-success i,
+[data-theme="dark"] .bi-circle-fill.text-success {
+  color: #28a745 !important;
 }
 
 /* Loader */
 .loader {
   width: 54px;
   height: 54px;
-  border: 6px solid #00c6ff;
-  border-bottom-color: #fff;
+  border: 6px solid var(--accent-secondary);
+  border-bottom-color: var(--text-navbar);
   border-radius: 50%;
   display: none;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
   margin: 2rem auto;
-  box-shadow: 0 2px 12px 0 rgba(0, 198, 255, 0.10);
+  box-shadow: 0 2px 12px 0 var(--shadow-primary);
+  transition: border-color 0.3s ease;
 }
 
 @keyframes rotation {
@@ -47,33 +209,34 @@ body {
     transform: rotate(360deg);
   }
 }
-
 /* Contenitore lista */
 #lista-box {
   max-width: 900px;
   margin: 2.5rem auto;
   padding: 2rem 1.5rem;
-  background: rgba(255, 255, 255, 0.97);
+  background: var(--bg-secondary);
   border-radius: 18px;
-  box-shadow: 0 8px 32px 0 rgba(0, 123, 255, 0.08);
+  box-shadow: 0 8px 32px 0 var(--shadow-primary);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* Card task */
 .card {
   border-radius: 14px;
-  box-shadow: 0 4px 18px 0 rgba(0, 123, 255, 0.07);
+  box-shadow: 0 4px 18px 0 var(--shadow-card);
   transition: box-shadow 0.3s cubic-bezier(.4, 2, .6, 1), transform 0.2s, background 0.3s;
-  background: linear-gradient(120deg, #f9faff 80%, #e3f0ff 100%);
+  background: var(--bg-card);
   margin-bottom: 1.2rem;
   border: none;
   position: relative;
 }
 
 .card:hover {
-  box-shadow: 0 16px 40px 0 rgba(0, 123, 255, 0.22);
+  box-shadow: 0 16px 40px 0 var(--shadow-card-hover);
   transform: translateY(-6px) scale(1.025);
-  background: linear-gradient(120deg, #e3f0ff 60%, #f9faff 100%);
-}
+  background: var(--bg-card-hover);
+} 
+
 
 /* Card body */
 .card-body {
@@ -93,9 +256,9 @@ body {
 .form-check-input {
   cursor: pointer;
   transition: transform 0.2s cubic-bezier(.4, 2, .6, 1), box-shadow 0.2s;
-  box-shadow: 0 2px 8px 0 rgba(0, 123, 255, 0.08);
-  border: 2px solid #007bff;
-  background-color: #fff;
+  box-shadow: 0 2px 8px 0 var(--shadow-primary);
+  border: 2px solid var(--accent-primary);
+  background-color: var(--bg-secondary);
 }
 
 .form-check-input:checked {
@@ -115,6 +278,11 @@ body {
   user-select: none;
   font-weight: 500;
   letter-spacing: 0.2px;
+}
+
+/* Testi nel tema scuro */
+[data-theme="dark"] .col-auto span {
+  color: var(--text-primary) !important;
 }
 
 /* Pulsanti tondi */
@@ -151,34 +319,112 @@ body {
 /* Modal titoli */
 .modal-title {
   font-weight: 700;
-  color: #00c6ff;
+  color: var(--text-modal);
   letter-spacing: 1px;
+}
+
+/* Modal Content */
+.modal-content {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  transition: background 0.3s ease;
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-footer {
+  border-top: 1px solid var(--border-color);
+}
+
+/* Form Controls */
+.form-control, .form-select {
+  background-color: var(--bg-secondary);
+  border: 1.5px solid var(--border-color);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: var(--bg-secondary);
+  border-color: var(--accent-primary);
+  color: var(--text-primary);
+  box-shadow: 0 0 8px var(--shadow-primary);
+}
+
+.form-label {
+  color: var(--text-secondary);
+}
+
+/* Dropdown nel tema scuro */
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+  background-color: #2d3748;
+  border-color: #4a5568;
+  color: #f7fafc;
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+  background-color: #2d3748;
+  border-color: var(--accent-primary);
+  color: #f7fafc;
+  box-shadow: 0 0 8px var(--accent-primary);
+}
+
+[data-theme="dark"] .form-control::placeholder {
+  color: #a0aec0;
+}
+
+/* Select options nel tema scuro */
+[data-theme="dark"] .form-select option {
+  background-color: #2d3748;
+  color: #f7fafc;
+}
+
+[data-theme="dark"] .form-select option:checked,
+[data-theme="dark"] .form-select option:hover,
+[data-theme="dark"] .form-select option:focus {
+  background-color: var(--accent-primary, #6c5ce7) !important;
+  color: white !important;
 }
 
 /* Pulsanti modali */
 .modal-footer .btn-primary {
-  background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
+  background: var(--bg-navbar);
   border: none;
   font-weight: 700;
   transition: background 0.3s, transform 0.2s;
-  box-shadow: 0 2px 8px 0 rgba(0, 123, 255, 0.10);
+  box-shadow: 0 2px 8px 0 var(--shadow-primary);
 }
 
 .modal-footer .btn-primary:hover {
-  background: linear-gradient(90deg, #0056b3 60%, #00aaff 100%);
+  background: linear-gradient(90deg, var(--accent-hover) 60%, var(--accent-secondary) 100%);
   transform: scale(1.05);
+}
+
+/* Buttons */
+.btn-primary {
+  background: var(--bg-navbar);
+  border-color: var(--accent-primary);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(90deg, var(--accent-hover) 60%, var(--accent-secondary) 100%);
+  border-color: var(--accent-hover);
 }
 
 /* Select menu base */
 select.form-select {
   border-radius: 8px;
-  border: 1.5px solid #b5c9e2;
+  border: 1.5px solid var(--border-color);
   padding: 0.45rem 2.5rem 0.45rem 0.85rem;
   font-size: 1.05rem;
   transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
-  background-color: #fff;
-  color: #222;
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.04);
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  box-shadow: 0 2px 8px var(--shadow-primary);
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -186,21 +432,21 @@ select.form-select {
 }
 
 select.form-select:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 8px #b3d7ff;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 8px var(--shadow-primary);
   outline: none;
-  background-color: #f4faff;
+  background-color: var(--bg-secondary);
 }
 
 /* Select personalizzato blu */
 .custom-arrow-white,
 .custom-arrow-white1 {
   appearance: none;
-  background-color: #007bff;
-  color: #fff;
-  border: 1.5px solid #444;
+  background-color: var(--accent-primary);
+  color: var(--text-navbar);
+  border: 1.5px solid var(--border-color);
   transition: box-shadow 0.3s, background-color 0.3s;
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.08);
+  box-shadow: 0 2px 8px var(--shadow-primary);
   padding-right: 3.5em;
   padding-left: 0.85em;
   width: 210px;
@@ -224,15 +470,37 @@ select.form-select:focus {
 .custom-arrow-white1:focus,
 .custom-arrow-white:hover,
 .custom-arrow-white1:hover {
-  background-color: #0056b3;
-  box-shadow: 0 0 10px rgba(0, 123, 255, 0.18);
+  background-color: var(--accent-hover);
+  box-shadow: 0 0 10px var(--shadow-card);
   outline: none;
+}
+
+/* Select personalizzato nel tema scuro */
+[data-theme="dark"] .custom-arrow-white,
+[data-theme="dark"] .custom-arrow-white1 {
+  background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6l4 4 4-4' stroke='white' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+}
+
+[data-theme="dark"] .custom-arrow-white option,
+[data-theme="dark"] .custom-arrow-white1 option {
+  background-color: #2d3748;
+  color: #f7fafc;
+}
+
+[data-theme="dark"] .custom-arrow-white option:checked,
+[data-theme="dark"] .custom-arrow-white option:hover,
+[data-theme="dark"] .custom-arrow-white option:focus,
+[data-theme="dark"] .custom-arrow-white1 option:checked,
+[data-theme="dark"] .custom-arrow-white1 option:hover,
+[data-theme="dark"] .custom-arrow-white1 option:focus {
+  background-color: var(--accent-primary, #6c5ce7) !important;
+  color: white !important;
 }
 
 .form-check-input:checked~.task-title,
 .form-check-input:checked+label .task-title {
   text-decoration: line-through;
-  color: #6c757d;
+  color: var(--text-muted);
   opacity: 0.7;
   font-style: italic;
   transition: color 0.3s, text-decoration 0.3s;
@@ -240,7 +508,7 @@ select.form-select:focus {
 
 .completed .task-title {
   text-decoration: line-through;
-  color: #6c757d;
+  color: var(--text-muted);
   opacity: 0.7;
   font-style: italic;
   transition: color 0.3s, text-decoration 0.3s;
@@ -257,7 +525,15 @@ select.form-select:focus {
   width: 48px;
   height: 48px;
   padding: 0;
-  border: 2px solid #0d6efd;
+  border: 2px solid var(--accent-primary);
+  background: var(--bg-secondary);
+  color: var(--accent-primary);
+  transition: all 0.3s ease;
+}
+
+.info-button .btn:hover {
+  background: var(--accent-primary);
+  color: var(--text-navbar);
 }
 
 /* Responsive */
@@ -289,16 +565,17 @@ select.form-select:focus {
 
 /* 🔵 SEZIONE STILE "SOTTOTASK INFO" */
 #helpModal .modal-body .subtask-info {
-  background: linear-gradient(135deg, #e3f0ff 0%, #f9faff 100%);
-  border-left: 4px solid #007bff;
+  background: var(--bg-subtask-info);
+  border-left: 4px solid var(--border-left-color);
   border-radius: 12px;
   padding: 1rem 1.25rem;
   margin-top: 1.5rem;
-  box-shadow: 0 4px 16px rgba(0, 123, 255, 0.08);
+  box-shadow: 0 4px 16px var(--shadow-primary);
+  transition: background 0.3s ease;
 }
 
 #helpModal .modal-body .subtask-info h6 {
-  color: #007bff;
+  color: var(--accent-primary);
   font-weight: 600;
   margin-bottom: 0.6rem;
   font-size: 1.1rem;
@@ -307,12 +584,12 @@ select.form-select:focus {
 #helpModal .modal-body .subtask-info p {
   margin: 0;
   font-size: 1rem;
-  color: #444;
+  color: var(--text-secondary);
   line-height: 1.5;
 }
 
 #helpModal .modal-body .subtask-info i {
-  color: #00c6ff;
+  color: var(--accent-secondary);
   margin-right: 0.5rem;
 }
 
@@ -321,10 +598,10 @@ select.form-select:focus {
   width: 100%;
   margin-top: 0.5rem;
   margin-bottom: 1.2rem;
-  background: linear-gradient(90deg, #f0f7ff 80%, #e3f0ff 100%);
+  background: var(--bg-sottotask);
   border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 123, 255, 0.08);
-  border-left: 5px solid #007bff;
+  box-shadow: 0 2px 10px var(--shadow-primary);
+  border-left: 5px solid var(--border-left-color);
   border-top: none;
   border-right: none;
   border-bottom: none;
@@ -338,11 +615,11 @@ select.form-select:focus {
 }
 
 #lista-box .sottotask-container li {
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: 1px solid var(--border-color);
   padding: 0.4rem 0;
   list-style: none;
   font-size: 1.08rem;
-  color: #2a2a2a;
+  color: var(--text-secondary);
   font-weight: 500;
   letter-spacing: 0.2px;
 }
@@ -366,4 +643,425 @@ select.form-select:focus {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ===== STILI SPECIFICI PER LA PAGINA INFO ===== */
+
+/* Info Card principale */
+.info-card {
+  border-radius: 1.5rem;
+  box-shadow: 0 1rem 2rem var(--shadow-card);
+  border: none;
+  background: var(--bg-card);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.info-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 1.5rem 3rem var(--shadow-card-hover);
+}
+
+/* Info Icona principale */
+.info-icon {
+  font-size: 3rem;
+  color: var(--accent-primary);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.info-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Info Titoli */
+.info-page h2 {
+  color: var(--text-primary);
+  font-weight: 700;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.info-page h4 {
+  color: var(--text-secondary);
+  font-weight: 600;
+  border-bottom: 2px solid var(--accent-primary);
+  padding-bottom: 0.5rem;
+  display: inline-block;
+}
+
+/* Info Lista delle icone */
+.info-list-group {
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 0.5rem 1rem var(--shadow-primary);
+}
+
+.info-list-group-item {
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+  animation: fadeInUp 0.6s ease-out;
+  animation-fill-mode: both;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.info-list-group-item:hover {
+  background-color: var(--bg-card-hover);
+  transform: translateX(5px);
+  box-shadow: 2px 0 8px var(--shadow-card);
+}
+
+/* Info Categorie (intestazioni) */
+.info-list-group-item.bg-light {
+  background: var(--bg-navbar) !important;
+  color: var(--text-navbar);
+  font-weight: 500;
+  font-size: 0.9rem;
+  text-transform: none;
+  letter-spacing: 0.3px;
+  border-radius: 0.5rem;
+  margin: 0.75rem 0 0.25rem 0;
+  padding: 0.75rem 1.25rem;
+  box-shadow: 0 2px 8px var(--shadow-primary);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.info-list-group-item.bg-light::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  transition: left 0.5s ease;
+}
+
+.info-list-group-item.bg-light:hover::before {
+  left: 100%;
+}
+
+.info-list-group-item.bg-light:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--shadow-card-hover);
+}
+
+.info-list-group-item.bg-light strong {
+  color: var(--text-navbar);
+  text-shadow: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* Info Icone nella lista */
+.info-list-group-item i {
+  font-size: 1.3rem;
+  transition: transform 0.3s ease;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  color: var(--accent-primary);
+}
+
+.info-list-group-item:hover i {
+  transform: scale(1.2);
+}
+
+/* Info Testo descrittivo */
+.info-list-group-item strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Info Bottone back migliorato */
+.info-btn-back {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 999;
+  border: 3px solid var(--accent-primary);
+  background: var(--bg-card);
+  width: 60px;
+  height: 60px;
+  box-shadow: 0 0.5rem 1rem var(--shadow-card);
+  transition: all 0.3s ease;
+  color: var(--accent-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-btn-back:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0.8rem 1.5rem var(--shadow-card-hover);
+  background: var(--bg-navbar);
+  color: var(--text-navbar);
+}
+
+.info-btn-back i {
+  transition: transform 0.3s ease;
+}
+
+.info-btn-back:hover i {
+  transform: translateX(-2px);
+}
+
+/* Info Container migliorato */
+.info-container {
+  max-width: 900px;
+}
+
+/* Info Miglioramento per la leggibilità */
+.info-page p {
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.info-page strong {
+  color: var(--text-primary);
+}
+
+/* Animazioni per il caricamento info */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ritarda l'animazione per ogni elemento della lista info */
+.info-list-group-item:nth-child(1) { animation-delay: 0.1s; }
+.info-list-group-item:nth-child(2) { animation-delay: 0.2s; }
+.info-list-group-item:nth-child(3) { animation-delay: 0.3s; }
+.info-list-group-item:nth-child(4) { animation-delay: 0.4s; }
+.info-list-group-item:nth-child(5) { animation-delay: 0.5s; }
+.info-list-group-item:nth-child(6) { animation-delay: 0.6s; }
+.info-list-group-item:nth-child(7) { animation-delay: 0.7s; }
+.info-list-group-item:nth-child(8) { animation-delay: 0.8s; }
+.info-list-group-item:nth-child(9) { animation-delay: 0.9s; }
+.info-list-group-item:nth-child(10) { animation-delay: 1.0s; }
+
+/* Effetti hover per le icone colorate info */
+.info-page .text-danger:hover { color: #dc3545 !important; filter: brightness(1.2); }
+.info-page .text-success:hover { color: #198754 !important; filter: brightness(1.2); }
+.info-page .text-primary:hover { color: var(--accent-primary) !important; filter: brightness(1.2); }
+.info-page .text-secondary:hover { color: var(--text-muted) !important; filter: brightness(1.2); }
+
+/* Media queries per responsive info */
+@media (max-width: 768px) {
+  .info-container {
+    padding: 1rem;
+  }
+  
+  .info-card {
+    margin: 1rem 0;
+    border-radius: 1rem;
+  }
+  
+  .info-icon {
+    font-size: 2.5rem;
+  }
+  
+  .info-btn-back {
+    width: 50px;
+    height: 50px;
+    bottom: 15px;
+    left: 15px;
+  }
+  
+  .info-list-group-item {
+    padding: 0.75rem 1rem;
+  }
+  
+  .info-page h2 {
+    font-size: 1.5rem;
+  }
+  
+  .info-page h4 {
+    font-size: 1.2rem;
+  }
+}
+
+/* Miglioramenti specifici per il tema scuro */
+[data-theme="dark"] .card-body {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .task-title {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .modal-body {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .modal-body label {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] span {
+  color: var(--text-primary);
+}
+
+/* Buttons nel tema scuro */
+[data-theme="dark"] .btn-light {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .btn-light:hover {
+  background-color: var(--bg-card-hover);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+/* Close button nei modal */
+[data-theme="dark"] .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Badge e contatori */
+[data-theme="dark"] .badge {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Miglioramenti per la leggibilità generale */
+[data-theme="dark"] h1, 
+[data-theme="dark"] h2, 
+[data-theme="dark"] h3, 
+[data-theme="dark"] h4, 
+[data-theme="dark"] h5, 
+[data-theme="dark"] h6 {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] p {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .text-white {
+  color: var(--text-navbar) !important;
+}
+
+/* Override completo per tutte le icone nel tema scuro */
+[data-theme="dark"] .navbar i,
+[data-theme="dark"] .card i,
+[data-theme="dark"] .modal i,
+[data-theme="dark"] .btn i,
+[data-theme="dark"] .list-group-item i,
+[data-theme="dark"] .info-list-group-item i,
+[data-theme="dark"] .container i,
+[data-theme="dark"] .info-icon,
+[data-theme="dark"] .bi-circle-fill,
+[data-theme="dark"] .bi-house,
+[data-theme="dark"] .bi-check2-square,
+[data-theme="dark"] .bi-person,
+[data-theme="dark"] .bi-folder,
+[data-theme="dark"] .bi-plus-lg,
+[data-theme="dark"] .bi-list-task,
+[data-theme="dark"] .bi-sticky,
+[data-theme="dark"] .bi-pencil,
+[data-theme="dark"] .bi-trash,
+[data-theme="dark"] .bi-x-octagon,
+[data-theme="dark"] .bi-info-circle,
+[data-theme="dark"] .bi-arrow-left {
+  color: var(--icon-color-dark, #7c6df0) !important;
+}
+
+/* Eccezioni per le icone che devono rimanere bianche */
+[data-theme="dark"] .navbar .navbar-brand i,
+[data-theme="dark"] .theme-toggle i,
+[data-theme="dark"] #theme-toggle i,
+[data-theme="dark"] .bi-sun-fill,
+[data-theme="dark"] .bi-moon-stars-fill {
+  color: var(--text-navbar) !important;
+}
+
+/* Regole generali per l'evidenziazione viola dei dropdown nel tema scuro */
+[data-theme="dark"] select option:checked,
+[data-theme="dark"] select option:hover,
+[data-theme="dark"] select option:focus {
+  background-color: var(--accent-primary, #6c5ce7) !important;
+  color: white !important;
+}
+
+/* Pallini colorati specifici per la pagina info */
+[data-theme="dark"] .info-page .text-danger,
+[data-theme="dark"] .info-list-group-item .text-danger {
+  color: #dc3545 !important;
+}
+
+[data-theme="dark"] .info-page .text-success,
+[data-theme="dark"] .info-list-group-item .text-success {
+  color: #28a745 !important;
+}
+
+/* Testi delle scadenze visibili nel tema scuro */
+[data-theme="dark"] .col-auto span {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .card-body span {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .task-title,
+[data-theme="dark"] .task-description {
+  color: var(--text-primary) !important;
+}
+
+/* Assicura visibilità di tutti i testi delle task nel tema scuro */
+[data-theme="dark"] .card-body .col-auto,
+[data-theme="dark"] .card-body .col-auto span,
+[data-theme="dark"] .card-body .col-auto strong,
+[data-theme="dark"] .card-body .col-auto small {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .card-body .text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Messaggi di lista vuota visibili nel tema scuro */
+[data-theme="dark"] .text-center,
+[data-theme="dark"] .text-center p,
+[data-theme="dark"] .alert,
+[data-theme="dark"] .alert-info,
+[data-theme="dark"] .empty-message,
+[data-theme="dark"] .no-tasks-message {
+  color: var(--text-primary) !important;
+}
+
+/* Specifico per i messaggi "Nessuna task completata" e "Ancora nessuna task" */
+[data-theme="dark"] #lista-box .text-center,
+[data-theme="dark"] #lista-box .text-center p,
+[data-theme="dark"] #lista-box .text-muted {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .container .text-center,
+[data-theme="dark"] .container .text-center p {
+  color: var(--text-primary) !important;
+}
+
+/* Regola specifica per il messaggio "Ancora nessuna task..." */
+[data-theme="dark"] #lista-box .text-muted {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .my-4.text-center.text-muted {
+  color: var(--text-primary) !important;
 }

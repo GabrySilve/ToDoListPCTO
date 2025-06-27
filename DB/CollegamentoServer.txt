@@ -1,2 +1,0 @@
-// Server azienda: "Server=DESKTOP-7B28933;Database=TestDB;Trusted_Connection=True;TrustServerCertificate=True;"
-//Server casa: "Server=;Database=TestDB;Trusted_Connection=True;TrustServerCertificate=True;"
